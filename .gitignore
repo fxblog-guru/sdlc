@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Build output
+out/
+dist/
+*.vsix
+
+# VS Code extension test harness (downloads a full VS Code build)
+.vscode-test/
+
+# Generated state
+workspace/dev/state.json
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log

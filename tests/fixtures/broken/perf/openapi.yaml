@@ -1,0 +1,44 @@
+# Broken: perf-smoke must fail each of /slow (p95), /fat (payload) and /chatty (queries, the N+1
+# shape), and /stale (an ETag it does not honour, an x-cache with no Cache-Control), and lint-dev
+# must warn on /unbudgeted (W050) and /partial (W051).
+openapi: 3.1.0
+info:
+  title: demo
+  version: 1.0.0
+paths:
+  /slow:
+    get:
+      operationId: getSlow
+      x-perf: { p95_ms: 100, max_queries: 3, max_payload_kb: 4 }
+      responses:
+        '200': { description: ok }
+  /fat:
+    get:
+      operationId: getFat
+      x-perf: { p95_ms: 400, max_queries: 3, max_payload_kb: 4 }
+      responses:
+        '200': { description: ok }
+  /chatty:
+    get:
+      operationId: listChatty
+      x-perf: { p95_ms: 400, max_queries: 3, max_payload_kb: 4 }
+      responses:
+        '200': { description: ok }
+  /stale:
+    get:
+      operationId: getStale
+      x-perf: { p95_ms: 400, max_queries: 3, max_payload_kb: 4 }
+      x-cache: public:60
+      responses:
+        '200': { description: ok }
+  /unbudgeted:
+    get:
+      operationId: getUnbudgeted
+      responses:
+        '200': { description: ok }
+  /partial:
+    get:
+      operationId: getPartial
+      x-perf: { p95_ms: 0, max_queries: 3 }
+      responses:
+        '200': { description: ok }

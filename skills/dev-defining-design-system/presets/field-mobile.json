@@ -1,0 +1,352 @@
+{
+  "schema": 2,
+  "id": "field-mobile",
+  "name": "Field Mobile",
+  "summary": "Phone-first and outdoor-legible. Near-black on white, deep teal accent, 17px body, 48px targets, bottom tab bar, system fonts for offline speed.",
+  "best_for": [
+    "technicians, drivers, warehouse and on-site staff",
+    "one-handed use, gloves, bright sunlight, poor signal",
+    "PWAs and React Native-parity web views"
+  ],
+  "avoid_for": [
+    "desktop analytics or bulk editing",
+    "marketing sites"
+  ],
+  "shell": "bottom-tabs",
+  "density": "touch",
+  "kit": {
+    "react": {
+      "name": "shadcn/ui (Radix) with the touch control sizes from this file",
+      "notes": "Vaul for bottom sheets; never a hover-only affordance"
+    },
+    "nextjs": {
+      "name": "shadcn/ui (Radix) with the touch control sizes from this file",
+      "notes": "offline shell via a service worker; the offline state is designed, not assumed away"
+    }
+  },
+  "kit_base": "shadcn-new-york",
+  "font": {
+    "sans": "system-ui, -apple-system, \"Segoe UI\", Roboto, \"Helvetica Neue\", sans-serif",
+    "mono": "ui-monospace, Menlo, Consolas, monospace"
+  },
+  "color": {
+    "light": {
+      "bg": "#ffffff",
+      "surface": "#ffffff",
+      "surface-2": "#f1f3f5",
+      "border": "#dee2e6",
+      "border-strong": "#6c757d",
+      "text": "#0b0d0f",
+      "text-muted": "#495057",
+      "primary": "#0f766e",
+      "primary-hover": "#115e59",
+      "primary-fg": "#ffffff",
+      "success": "#15803d",
+      "warning": "#a16207",
+      "danger": "#c62828",
+      "danger-fg": "#ffffff",
+      "info": "#1565c0",
+      "focus": "#0b0d0f"
+    },
+    "dark": {
+      "bg": "#000000",
+      "surface": "#121416",
+      "surface-2": "#1e2124",
+      "border": "#2b2f33",
+      "border-strong": "#868e96",
+      "text": "#f8f9fa",
+      "text-muted": "#b4bcc4",
+      "primary": "#2dd4bf",
+      "primary-hover": "#5eead4",
+      "primary-fg": "#022c28",
+      "success": "#4ade80",
+      "warning": "#fbbf24",
+      "danger": "#ff6b6b",
+      "danger-fg": "#2a0000",
+      "info": "#64b5f6",
+      "focus": "#f8f9fa"
+    }
+  },
+  "type": {
+    "body": "md",
+    "scale": {
+      "xs": [
+        13,
+        1.4,
+        "meta only — never an action label"
+      ],
+      "sm": [
+        15,
+        1.45,
+        "secondary text"
+      ],
+      "md": [
+        17,
+        1.5,
+        "body, inputs, list rows"
+      ],
+      "lg": [
+        19,
+        1.4,
+        "card titles"
+      ],
+      "xl": [
+        22,
+        1.3,
+        "screen title (h1)"
+      ],
+      "2xl": [
+        26,
+        1.25,
+        "status headline"
+      ],
+      "3xl": [
+        32,
+        1.2,
+        "big numbers, timers"
+      ]
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "ratio": 1.2,
+    "roles": {
+      "display": {
+        "size": 40,
+        "line": 1.1,
+        "weight": 700,
+        "tracking": -0.02
+      },
+      "h1": {
+        "size": 32,
+        "line": 1.2,
+        "weight": 600,
+        "tracking": -0.015
+      },
+      "h2": {
+        "size": 26,
+        "line": 1.25,
+        "weight": 600,
+        "tracking": -0.01
+      },
+      "h3": {
+        "size": 21,
+        "line": 1.35,
+        "weight": 600,
+        "tracking": 0
+      },
+      "body": {
+        "size": 17,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0
+      },
+      "small": {
+        "size": 15,
+        "line": 1.45,
+        "weight": 400,
+        "tracking": 0.005
+      },
+      "mono": {
+        "size": 15,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "font": "mono"
+      },
+      "tabular": {
+        "size": 17,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "numeric": "tabular-nums"
+      }
+    }
+  },
+  "space": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64
+  ],
+  "radius": {
+    "none": 0,
+    "sm": 6,
+    "md": 8,
+    "lg": 10,
+    "xl": 16,
+    "full": 9999
+  },
+  "elevation": {
+    "light": {
+      "0": "none",
+      "1": "0 1px 2px rgb(0 0 0 / 0.10)",
+      "2": "0 4px 12px rgb(0 0 0 / 0.14)",
+      "3": "0 -4px 24px rgb(0 0 0 / 0.18)"
+    },
+    "dark": {
+      "0": "none",
+      "1": "0 1px 2px rgb(0 0 0 / 0.6)",
+      "2": "0 4px 12px rgb(0 0 0 / 0.7)",
+      "3": "0 -4px 24px rgb(0 0 0 / 0.8)"
+    }
+  },
+  "motion": {
+    "fast": "100ms",
+    "base": "200ms",
+    "slow": "300ms",
+    "easing": "cubic-bezier(0.2, 0, 0, 1)"
+  },
+  "breakpoints": {
+    "sm": 360,
+    "md": 768,
+    "lg": 1024,
+    "xl": 1280,
+    "2xl": 1536
+  },
+  "control": {
+    "height-sm": 40,
+    "height-md": 48,
+    "height-lg": 56,
+    "row-height": 64,
+    "target-min": 48,
+    "sidebar-width": 280,
+    "content-max": 720
+  },
+  "neutral": {
+    "50": "#f9fafb",
+    "100": "#f3f4f6",
+    "200": "#e5e7eb",
+    "300": "#d1d5db",
+    "400": "#9ca3af",
+    "500": "#6b7280",
+    "600": "#4b5563",
+    "700": "#374151",
+    "800": "#1f2937",
+    "900": "#111827",
+    "950": "#030712"
+  },
+  "dataviz": {
+    "light": [
+      "#2a78d6",
+      "#eb6834",
+      "#1baf7a",
+      "#eda100",
+      "#e87ba4",
+      "#008300",
+      "#6250d6",
+      "#e34948"
+    ],
+    "dark": [
+      "#3987e5",
+      "#d95926",
+      "#199e70",
+      "#c98500",
+      "#d55181",
+      "#008300",
+      "#9085e9",
+      "#e66767"
+    ]
+  },
+  "icon": {
+    "set": "lucide",
+    "stroke": 2,
+    "sizes": {
+      "sm": 16,
+      "md": 20,
+      "lg": 24
+    }
+  },
+  "density_modes": {
+    "touch": {
+      "row-height": 64,
+      "control-height": 48,
+      "cell-pad-x": 16,
+      "cell-pad-y": 16
+    },
+    "comfortable": {
+      "row-height": 52,
+      "control-height": 48,
+      "cell-pad-x": 16,
+      "cell-pad-y": 12
+    }
+  },
+  "extra_roles": {
+    "tint-success": {
+      "light": "#e3f0e8",
+      "dark": "#1c3829",
+      "use": "success badge, notice and row fill"
+    },
+    "tint-warning": {
+      "light": "#f4ece1",
+      "dark": "#3c3319",
+      "use": "warning badge, notice and row fill"
+    },
+    "tint-danger": {
+      "light": "#f8e5e5",
+      "dark": "#3d2425",
+      "use": "danger badge, notice and row fill"
+    },
+    "tint-info": {
+      "light": "#e3edf7",
+      "dark": "#21313e",
+      "use": "info badge, notice and row fill"
+    }
+  },
+  "extra_contrast_pairs": [
+    {
+      "fg": "text",
+      "bg": "tint-success",
+      "kind": "text"
+    },
+    {
+      "fg": "success",
+      "bg": "tint-success",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-warning",
+      "kind": "text"
+    },
+    {
+      "fg": "warning",
+      "bg": "tint-warning",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-danger",
+      "kind": "text"
+    },
+    {
+      "fg": "danger",
+      "bg": "tint-danger",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-info",
+      "kind": "text"
+    },
+    {
+      "fg": "info",
+      "bg": "tint-info",
+      "kind": "non-text"
+    }
+  ],
+  "scrim": {
+    "light": "rgba(9, 9, 11, 0.45)",
+    "dark": "rgba(0, 0, 0, 0.6)"
+  }
+}

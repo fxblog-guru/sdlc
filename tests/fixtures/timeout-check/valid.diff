@@ -1,0 +1,31 @@
+diff --git a/web/vitest.config.ts b/web/vitest.config.ts
+--- a/web/vitest.config.ts
++++ b/web/vitest.config.ts
+@@ -4,3 +4,4 @@ export default defineConfig({
+   test: {
+-    testTimeout: 30000,
++    // slow-test: the axe scan of the full release page renders 400 rows, measured 11 s on CI
++    testTimeout: 15000,
+   },
+diff --git a/web/src/features/Dialog.test.tsx b/web/src/features/Dialog.test.tsx
+--- a/web/src/features/Dialog.test.tsx
++++ b/web/src/features/Dialog.test.tsx
+@@ -10,2 +10,4 @@ describe('dialog', () => {
+   it('saves', async () => {
++    test.setTimeout(20_000); // slow-test: real Postgres container start, about 9 s cold
++    await waitFor(() => expect(saved).toBe(true), { timeout: 2000 }); // slow-test: debounce is 1500 ms by spec
+   });
+diff --git a/internal/job/client.go b/internal/job/client.go
+--- a/internal/job/client.go
++++ b/internal/job/client.go
+@@ -1,2 +1,3 @@
+ package job
++var httpClient = &http.Client{Timeout: 30 * time.Second, retries: 3}
+ import "net/http"
+diff --git a/e2e/playwright.config.ts b/e2e/playwright.config.ts
+--- a/e2e/playwright.config.ts
++++ b/e2e/playwright.config.ts
+@@ -2,3 +2,3 @@
+-  retries: 2,
++  retries: 0,
+   timeout: 30000,

@@ -1,0 +1,141 @@
+openapi: 3.1.0
+info:
+  title: Demo
+  version: 1.0.0
+paths:
+  /releases:
+    get:
+      operationId: listReleases
+      x-requirements: [REQ-010]
+      parameters:
+        - { $ref: '#/components/parameters/Limit' }
+        - { name: cursor, in: query, schema: { type: string } }
+        - { name: sort, in: query, schema: { type: string, enum: [created_at, -created_at] } }
+        - { name: is_archived, in: query, schema: { type: boolean } }
+        - { name: project_id, in: query, schema: { type: string } }
+      responses:
+        '200': { description: A page. }
+    post:
+      operationId: createRelease
+      x-idempotency: required
+      x-concurrency: none:a new record has no prior version
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReleaseCreate' }
+      responses:
+        '201':
+          description: Created.
+          headers:
+            Location: { schema: { type: string } }
+        '422': { $ref: '#/components/responses/Problem' }
+  /releases/{release_id}:
+    parameters:
+      - { name: release_id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getRelease
+      responses:
+        '200':
+          description: The release.
+          headers:
+            ETag: { schema: { type: string } }
+    patch:
+      operationId: updateRelease
+      x-idempotency: exempt:a PATCH with If-Match is safe to retry
+      x-concurrency: if-match
+      parameters:
+        - { name: If-Match, in: header, required: true, schema: { type: string } }
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReleaseUpdate' }
+      responses:
+        '200': { description: Updated. }
+        '412': { $ref: '#/components/responses/Problem' }
+    delete:
+      operationId: deleteRelease
+      x-idempotency: exempt:a repeated delete answers 404
+      x-concurrency: if-match
+      parameters:
+        - { name: If-Match, in: header, required: true, schema: { type: string } }
+      responses:
+        '204': { description: Deleted. }
+        '412': { $ref: '#/components/responses/Problem' }
+  /releases/{release_id}/pin:
+    parameters:
+      - { name: release_id, in: path, required: true, schema: { type: string } }
+    put:
+      operationId: setReleasePin
+      x-idempotency: exempt:setting a state twice is the same state
+      x-concurrency: none:a per-user flag with one writer
+      responses:
+        '204': { description: Pinned. }
+    delete:
+      operationId: unsetReleasePin
+      x-idempotency: exempt:clearing a state twice is the same state
+      x-concurrency: none:a per-user flag with one writer
+      responses:
+        '204': { description: Unpinned. }
+  /releases/{release_id}/approve:
+    parameters:
+      - { name: release_id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: approveRelease
+      x-idempotency: required
+      x-concurrency: if-match
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+        - { name: If-Match, in: header, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Approved. }
+        '412': { $ref: '#/components/responses/Problem' }
+components:
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      schema: { type: string }
+  responses:
+    Problem:
+      description: Error.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    ProblemType:
+      type: string
+      enum:
+        - /problems/validation
+        - /problems/release-not-found
+        - /problems/release-conflict
+        - /problems/internal
+    Problem:
+      type: object
+      properties:
+        type: { $ref: '#/components/schemas/ProblemType' }
+        errors:
+          type: array
+          items: { $ref: '#/components/schemas/FieldError' }
+    FieldError:
+      type: object
+      properties:
+        field: { type: string }
+        code: { type: string, enum: [required, too_long, invalid_format] }
+        message: { type: string }
+        limit: { type: integer }
+    ReleaseCreate:
+      type: object
+      properties:
+        name: { type: string, maxLength: 100 }
+        notes: { type: string, maxLength: 10000 }
+        tags: { type: array, maxItems: 20, items: { type: string } }
+    ReleaseUpdate:
+      type: object
+      properties:
+        name: { type: string, maxLength: 100 }

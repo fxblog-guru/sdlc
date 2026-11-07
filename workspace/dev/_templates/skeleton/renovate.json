@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":pinAllExceptPeerDependencies", "docker:pinDigests", ":semanticCommits"],
+  "schedule": ["before 6am on monday"],
+  "prConcurrentLimit": 5,
+  "semanticCommitScope": "deps",
+  "packageRules": [
+    { "matchUpdateTypes": ["patch", "pin", "digest"], "groupName": "patch and digest updates", "automerge": false },
+    { "matchManagers": ["gomod"], "groupName": "go modules" },
+    { "matchManagers": ["npm"], "matchUpdateTypes": ["minor"], "groupName": "npm minor" },
+    { "matchUpdateTypes": ["major"], "dependencyDashboardApproval": true }
+  ],
+  "postUpdateOptions": ["gomodTidy"]
+}

@@ -1,0 +1,34 @@
+provider: aws
+title: Shop checkout — production
+env: production
+
+groups:
+  - { id: cloud, kind: root }
+  - { id: region, kind: region, in: cloud, label: eu-west-1 }
+  - { id: net, kind: network, in: region, label: Shop VPC, cidr: 10.0.0.0/16 }
+  - { id: public, kind: public-subnet, in: net, label: Public subnet }
+  - { id: app, kind: subnet, in: net, label: App subnet }
+  - { id: data, kind: subnet, in: net, label: Data subnet }
+
+nodes:
+  - { id: users, kind: users, label: Shoppers }
+  - { id: edge, kind: cdn, in: region, label: Edge }
+  - { id: lb, kind: load-balancer, in: public, label: Public LB }
+  - { id: api, kind: container-service, in: app, label: Checkout API, count: 2 }
+  - { id: worker, kind: container-service, in: app, label: Payment worker }
+  - { id: queue, kind: queue, in: region, label: Payment jobs }
+  - { id: db, kind: sql-database, in: data, label: Orders DB }
+  - { id: cache, kind: cache, in: data, label: Session cache }
+  - { id: vault, kind: secrets, in: region, label: App secrets }
+  - { id: obs, kind: monitoring, in: region, label: Metrics and alerts }
+
+edges:
+  - [users, edge, "HTTPS 443"]
+  - [edge, lb, "HTTPS 443"]
+  - [lb, api, "HTTP 8080"]
+  - [api, db, "PostgreSQL 5432"]
+  - [api, cache, "Redis 6379"]
+  - { from: api, to: queue, label: "enqueue payment", async: true }
+  - { from: queue, to: worker, label: "consume", async: true }
+  - [worker, db, "PostgreSQL 5432"]
+  - [api, vault, "read secrets"]

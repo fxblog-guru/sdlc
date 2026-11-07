@@ -1,0 +1,25 @@
+{
+  "label": "recall",
+  "version": null,
+  "initiatives": 3,
+  "first_pass": {
+    "passed": 3,
+    "of": 17,
+    "rate": 0.176,
+    "ci95": [
+      0.062,
+      0.41
+    ]
+  },
+  "rework": 14,
+  "reopened": 12,
+  "repeated": {
+    "total": 0,
+    "uncovered": 0
+  },
+  "unverified": 0,
+  "lessons": {
+    "active": 0,
+    "established": 0
+  }
+}

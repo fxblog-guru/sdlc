@@ -1,0 +1,29 @@
+# ops/otel/backends/datadog.yaml — logs, APM traces and metrics to Datadog. The connector computes
+# the APM trace metrics (hits, errors, latency) Datadog's service pages read.
+#
+#   DD_API_KEY   from the secret store, never committed (DEV-CONTRACTS §12.5)
+#   DD_SITE      datadoghq.com · datadoghq.eu · us5.datadoghq.com …
+
+connectors:
+  datadog/connector: {}
+
+exporters:
+  datadog:
+    api:
+      key: ${env:DD_API_KEY}
+      site: ${env:DD_SITE:-datadoghq.com}
+
+service:
+  pipelines:
+    logs/datadog:
+      receivers: [filelog]
+      processors: [memory_limiter, resource, batch]
+      exporters: [datadog]
+    traces/datadog:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [datadog/connector, datadog]
+    metrics/datadog:
+      receivers: [prometheus, otlp, datadog/connector]
+      processors: [memory_limiter, resource, batch]
+      exporters: [datadog]

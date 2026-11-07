@@ -1,0 +1,37 @@
+# Template — <root>/data/<slug>/limits.yaml (G3, DEV-CONTRACTS §13.11)
+#
+# authored_by: dev-modeling-data
+# reviewed_by: dev-reviewing-data
+#
+# Every length, size and count limit of the feature, once. The Go constant, the SQL CHECK, the
+# openapi maxLength and the web constant each carry the same number because each is matched here;
+# limits-check.mjs fails a layer that drifts or defines one limit twice. A field message never
+# names the number: it travels in FieldError.limit.
+#
+#   name    <entity>.<field> (or <entity>.<field>.<aspect>), lowercase, unique
+#   value   one integer
+#   unit    chars · bytes · items · count · seconds
+#   ref     the REQ-NNN or DEC-NNN that set it
+#   match   the identifiers each layer uses for it; each list may be omitted for a layer that has
+#           none. go/python: a constant (`pkg.Name` or bare `Name`); sql: `table.column`;
+#           openapi: `Schema.property`, `*.property` or `param:<name>`; web: a constant.
+#           `*` matches any run of characters.
+
+limits:
+  - name: <entity>.<field>
+    value: <100>
+    unit: chars
+    ref: <REQ-NNN>
+    match:
+      go: [<pkg>.Max<Field>]
+      sql: [<table>.<column>]
+      openapi: [<Schema>Create.<field>, <Schema>Update.<field>]
+      web: [MAX_<FIELD>]
+
+  - name: page.limit
+    value: 100
+    unit: items
+    ref: <DEC-NNN>
+    match:
+      go: [MaxPage]
+      openapi: [param:limit]

@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="fidelity" content="high">
+<title>__PRODUCT__ — visual design</title>
+<link rel="stylesheet" href="tokens.css">
+<!--
+  The G5 visual-design starter (dev-designing-visuals). Every value is a token from tokens.css,
+  rendered from the project's design-tokens.json; the layout is shadcn/ui new-york's anatomy
+  (sidebar shell, page header, card, data table, dialog, empty state, auth). Six archetypes, one per
+  `.screen`, routed by hash: #shell #list #detail #form #empty #sign-in. Replace the sample content
+  with the ui-spec's screens; keep the anatomy unless the ui-spec records a deviation.
+  Icons are drawn in the style of Lucide (ISC); swap in the icon set design-tokens.md names.
+-->
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, p, dl, dd, ul, ol, figure { margin: 0; }
+ul, ol { padding: 0; list-style: none; }
+a { color: var(--color-primary); text-decoration: none; }
+/* a link inside running text is underlined: colour alone does not mark it (WCAG 1.4.1) */
+p a, dd a, label a, li a { text-decoration: underline; text-underline-offset: 2px; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.screen { display: none; }
+.screen.on { display: block; }
+.icon { width: var(--icon-md); height: var(--icon-md); flex: none; stroke: currentColor; fill: none; stroke-width: var(--icon-stroke); stroke-linecap: round; stroke-linejoin: round; }
+.icon.sm { width: var(--icon-sm); height: var(--icon-sm); }
+.icon.lg { width: var(--icon-lg); height: var(--icon-lg); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Type roles */
+.t-display { font-size: var(--type-display-size); line-height: var(--type-display-line); font-weight: var(--type-display-weight); letter-spacing: var(--type-display-tracking); }
+h1, .t-h1 { font-size: var(--type-h1-size); line-height: var(--type-h1-line); font-weight: var(--type-h1-weight); letter-spacing: var(--type-h1-tracking); }
+h2, .t-h2 { font-size: var(--type-h2-size); line-height: var(--type-h2-line); font-weight: var(--type-h2-weight); letter-spacing: var(--type-h2-tracking); }
+h3, .t-h3 { font-size: var(--type-h3-size); line-height: var(--type-h3-line); font-weight: var(--type-h3-weight); letter-spacing: var(--type-h3-tracking); }
+.t-small { font-size: var(--type-small-size); line-height: var(--type-small-line); }
+.muted { color: var(--color-text-muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Shell: sidebar + top bar */
+.app { display: grid; grid-template-columns: var(--control-sidebar-width) minmax(0, 1fr); min-height: 100vh; }
+.sidebar { background: var(--color-surface-2); border-right: 1px solid var(--color-border); padding: var(--space-4) var(--space-3); display: flex; flex-direction: column; gap: var(--space-6); }
+.brand { display: flex; align-items: center; gap: var(--space-2); font-weight: var(--weight-semibold); padding: 0 var(--space-2); }
+.brand-mark { width: var(--control-height-md); height: var(--control-height-md); border-radius: var(--radius-lg); background: var(--color-primary); color: var(--color-primary-fg); display: grid; place-items: center; }
+.nav-group { display: grid; gap: var(--space-1); }
+.nav-label { font-size: var(--text-xs); line-height: var(--leading-xs); color: var(--color-text-muted); font-weight: var(--weight-medium); padding: 0 var(--space-2); margin-bottom: var(--space-1); }
+.nav a { display: flex; align-items: center; gap: var(--space-3); height: var(--control-height-md); padding: 0 var(--space-2); border-radius: var(--radius-md); color: var(--color-text); }
+.nav a:hover { background: var(--color-border); text-decoration: none; }
+.nav a[aria-current="page"] { background: var(--color-surface); color: var(--color-text); font-weight: var(--weight-medium); box-shadow: var(--shadow-1); }
+.nav a[aria-current="page"] .icon { color: var(--color-primary); }
+.nav .count { margin-left: auto; font-size: var(--text-xs); color: var(--color-text-muted); }
+.sidebar-foot { margin-top: auto; display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2); border-radius: var(--radius-md); }
+.main-col { display: flex; flex-direction: column; min-width: 0; }
+.topbar { height: calc(var(--control-height-md) + var(--space-4) * 2); display: flex; align-items: center; gap: var(--space-3); padding: 0 var(--space-6); border-bottom: 1px solid var(--color-border); background: var(--color-surface); }
+.search { flex: 1; max-width: calc(var(--control-sidebar-width) * 1.75); display: flex; align-items: center; gap: var(--space-2); height: var(--control-height-md); padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text-muted); background: var(--color-bg); }
+.search kbd { margin-left: auto; font-family: var(--font-mono); font-size: var(--text-xs); border: 1px solid var(--color-border); border-radius: var(--radius-sm); padding: 0 var(--space-1); }
+.topbar .spacer { flex: 1; }
+.btn.menu-btn { display: none; }
+.avatar { width: var(--control-height-sm); height: var(--control-height-sm); border-radius: var(--radius-full); background: var(--neutral-200); color: var(--neutral-800); display: grid; place-items: center; font-size: var(--text-xs); font-weight: var(--weight-semibold); flex: none; }
+/* initials are text on the tint: a role colour on its own tint is under 4.5:1 in most presets */
+.avatar.a2 { background: var(--color-tint-info); color: var(--color-text); }
+.avatar.a3 { background: var(--color-tint-success); color: var(--color-text); }
+.avatar.a4 { background: var(--color-tint-warning); color: var(--color-text); }
+main { padding: var(--space-7) var(--space-6); width: 100%; max-width: calc(var(--control-content-max) + var(--space-6) * 2); margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-6); align-content: start; }
+
+/* Page header */
+.page-head { display: flex; align-items: flex-end; gap: var(--space-4); justify-content: space-between; flex-wrap: wrap; }
+.page-head .lead { display: grid; gap: var(--space-1); min-width: 0; }
+.crumbs { display: flex; align-items: center; gap: var(--space-1); color: var(--color-text-muted); font-size: var(--type-small-size); }
+.actions { display: flex; align-items: center; gap: var(--space-2); }
+
+/* Buttons */
+.btn { font: inherit; font-weight: var(--weight-medium); height: var(--control-height-md); padding: 0 var(--space-4); display: inline-flex; align-items: center; gap: var(--space-2); border-radius: var(--radius-md); border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-1); cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--color-surface-2); text-decoration: none; }
+.btn.primary { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-primary-fg); }
+.btn.primary:hover { background: var(--color-primary-hover); }
+.btn.ghost { border-color: transparent; background: transparent; box-shadow: none; }
+.btn.icon-only { width: var(--control-height-md); padding: 0; justify-content: center; }
+.btn.sm { height: var(--control-height-sm); padding: 0 var(--space-3); }
+
+/* Cards, KPIs */
+.card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); box-shadow: var(--shadow-1); }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-4) var(--space-6); }
+.card-head p { margin-top: var(--space-1); }
+.card-body { padding: 0 var(--space-6) var(--space-6); }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+.kpi { padding: var(--space-6); display: grid; gap: var(--space-2); }
+.kpi .label { display: flex; align-items: center; justify-content: space-between; color: var(--color-text-muted); font-size: var(--type-small-size); font-weight: var(--weight-medium); }
+.kpi .value { font-size: var(--type-h1-size); line-height: var(--type-h1-line); font-weight: var(--weight-semibold); letter-spacing: var(--type-h1-tracking); font-variant-numeric: tabular-nums; }
+.delta { display: inline-flex; align-items: center; gap: var(--space-1); font-size: var(--type-small-size); }
+/* small text in a role colour fails 4.5:1 on a tinted card in some presets: the word is text, the arrow carries the hue */
+.delta { color: var(--color-text); } .delta.up .icon { color: var(--color-success); } .delta.down .icon { color: var(--color-danger); }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-4); }
+
+/* Chart */
+.chart { display: grid; gap: var(--space-3); }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .grid line { stroke: var(--color-border); }
+.chart .axis text { fill: var(--color-text-muted); font-size: var(--text-xs); font-family: var(--font-sans); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-4); font-size: var(--type-small-size); color: var(--color-text-muted); }
+.legend span { display: inline-flex; align-items: center; gap: var(--space-2); }
+.swatch { width: var(--space-3); height: var(--space-3); border-radius: var(--radius-sm); display: inline-block; }
+
+/* Badges: status is hue + icon + text */
+.badge { display: inline-flex; align-items: center; gap: var(--space-1); height: calc(var(--control-height-sm) - var(--space-2)); padding: 0 var(--space-2); border-radius: var(--radius-full); font-size: var(--text-xs); line-height: var(--leading-xs); font-weight: var(--weight-medium); white-space: nowrap; }
+.badge .icon { width: var(--icon-sm); height: var(--icon-sm); }
+/* hue + icon + word: the badge (and its icon) carry the role colour, the word is a child span in
+   text, so it reads 4.5:1 on the tint in every preset and the hues stay apart */
+[data-status="success"] { color: var(--color-success); background: var(--color-tint-success); }
+[data-status="warning"] { color: var(--color-warning); background: var(--color-tint-warning); }
+[data-status="danger"] { color: var(--color-danger); background: var(--color-tint-danger); }
+[data-status="info"] { color: var(--color-info); background: var(--color-tint-info); }
+.badge.neutral { color: var(--color-text-muted); background: var(--color-surface-2); }
+.badge > span { color: var(--color-text); }
+
+/* Data table */
+.toolbar { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--space-6) var(--space-4); flex-wrap: wrap; }
+.toolbar .search { max-width: none; flex: 0 1 calc(var(--control-sidebar-width) * 1.25); background: var(--color-surface); }
+.chip { display: inline-flex; align-items: center; gap: var(--space-1); height: var(--control-height-sm); padding: 0 var(--space-3); border: 1px dashed var(--color-border-strong); border-radius: var(--radius-md); color: var(--color-text); font-size: var(--type-small-size); background: transparent; font-family: inherit; }
+.table-wrap { overflow-x: auto; border-top: 1px solid var(--color-border); }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0 var(--space-4); height: var(--density-row-height); border-bottom: 1px solid var(--color-border); text-align: left; white-space: nowrap; vertical-align: middle; }
+th { height: calc(var(--density-row-height) - var(--space-2)); font-size: var(--type-small-size); font-weight: var(--weight-medium); color: var(--color-text-muted); background: var(--color-surface); }
+th:first-child, td:first-child { padding-left: var(--space-6); }
+th:last-child, td:last-child { padding-right: var(--space-6); }
+tbody tr:hover { background: var(--color-surface-2); }
+tbody tr:last-child td { border-bottom: 0; }
+td.right, th.right { text-align: right; font-variant-numeric: tabular-nums; }
+.cell-title { display: grid; gap: 0; max-width: calc(var(--control-sidebar-width) * 1.4); min-width: calc(var(--control-sidebar-width) * 0.6); }
+.cell-title a { font-weight: var(--weight-medium); color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-title .t-small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell-title .when { display: none; }
+.people { display: flex; align-items: center; gap: var(--space-2); }
+.progress { width: calc(var(--space-10) * 1.5); height: var(--space-2); border-radius: var(--radius-full); background: var(--color-surface-2); overflow: hidden; display: inline-block; vertical-align: middle; }
+.progress i { display: block; height: 100%; background: var(--color-primary); border-radius: var(--radius-full); }
+.table-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) var(--space-6); border-top: 1px solid var(--color-border); color: var(--color-text-muted); font-size: var(--type-small-size); }
+
+/* Detail */
+.tabs { display: flex; gap: var(--space-1); border-bottom: 1px solid var(--color-border); overflow-x: auto; }
+.tabs a { padding: var(--space-2) var(--space-3); color: var(--color-text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; font-weight: var(--weight-medium); white-space: nowrap; }
+.tabs a[aria-current="page"] { color: var(--color-text); border-bottom-color: var(--color-primary); }
+.tabs a:hover { text-decoration: none; color: var(--color-text); }
+dl.facts { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: var(--space-3) var(--space-4); }
+dl.facts dt { color: var(--color-text-muted); }
+.timeline { display: grid; gap: var(--space-4); }
+.timeline li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-3); align-items: start; }
+.env { display: grid; grid-template-columns: repeat(auto-fit, minmax(calc(var(--space-10) * 2.5), 1fr)); gap: var(--space-3); }
+.env .badge { justify-self: start; }
+.env > div { padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface-2); display: grid; gap: var(--space-2); }
+.env .name { font-weight: var(--weight-semibold); font-size: var(--type-small-size); letter-spacing: 0.04em; }
+.bar { height: var(--space-2); border-radius: var(--radius-full); background: var(--color-border); overflow: hidden; }
+.bar i { display: block; height: 100%; }
+
+/* Dialog */
+.scrim { position: fixed; inset: 0; background: var(--color-scrim); display: grid; place-items: center; padding: var(--space-4); z-index: 10; }
+[role="dialog"] { width: 100%; max-width: calc(var(--control-content-max) / 2.2); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); box-shadow: var(--shadow-3); display: grid; }
+.dlg-head { padding: var(--space-6) var(--space-6) var(--space-4); display: grid; gap: var(--space-1); }
+.dlg-body { padding: 0 var(--space-6); display: grid; gap: var(--space-4); }
+.dlg-foot { padding: var(--space-6); display: flex; justify-content: flex-end; gap: var(--space-2); }
+.field { display: grid; gap: var(--space-2); }
+.field label { font-weight: var(--weight-medium); }
+.input { font: inherit; height: var(--control-height-md); padding: 0 var(--space-3); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); width: 100%; box-shadow: var(--shadow-1); }
+textarea.input { height: auto; min-height: calc(var(--control-height-md) * 2.25); padding: var(--space-2) var(--space-3); resize: vertical; }
+.input[aria-invalid="true"] { border-color: var(--color-danger); }
+.err { color: var(--color-danger); display: flex; align-items: center; gap: var(--space-1); font-size: var(--type-small-size); }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+
+/* Empty state */
+.empty { padding: var(--space-10) var(--space-6); display: grid; justify-items: center; text-align: center; gap: var(--space-3); }
+.empty-icon { width: calc(var(--space-10) + var(--space-4)); height: calc(var(--space-10) + var(--space-4)); border-radius: var(--radius-full); background: var(--color-surface-2); display: grid; place-items: center; color: var(--color-text-muted); margin-bottom: var(--space-2); }
+.empty p { max-width: calc(var(--control-sidebar-width) * 1.6); }
+.empty .actions { margin-top: var(--space-2); flex-wrap: wrap; justify-content: center; }
+.empty-icon .icon { width: calc(var(--icon-lg) * 1.4); height: calc(var(--icon-lg) * 1.4); }
+
+/* Sign-in */
+.auth { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.auth-brand { background: var(--neutral-900); color: var(--neutral-50); padding: var(--space-10); display: flex; flex-direction: column; justify-content: space-between; }
+.auth-brand .brand { padding: 0; }
+.auth-brand blockquote { margin: 0; display: grid; gap: var(--space-3); max-width: calc(var(--control-sidebar-width) * 2); }
+.auth-brand blockquote p { font-size: var(--type-h3-size); line-height: var(--type-h3-line); }
+.auth-brand footer { color: var(--neutral-400); font-size: var(--type-small-size); }
+.auth-form { display: grid; place-items: center; padding: var(--space-6); }
+.auth-form form { width: 100%; max-width: calc(var(--control-sidebar-width) * 1.5); display: grid; gap: var(--space-4); }
+.auth-form .head { display: grid; gap: var(--space-2); text-align: center; margin-bottom: var(--space-2); }
+.auth-form .btn { width: 100%; justify-content: center; }
+.divider { display: flex; align-items: center; gap: var(--space-3); color: var(--color-text-muted); font-size: var(--type-small-size); }
+.divider::before, .divider::after { content: ""; flex: 1; border-top: 1px solid var(--color-border); }
+.fine { text-align: center; color: var(--color-text-muted); font-size: var(--type-small-size); }
+
+/* Below bp.xl: the lowest-priority table column goes */
+@media (max-width: __BP_XL__px) { .col-p3 { display: none; } }
+/* Below bp.lg: the sidebar becomes an icon rail */
+@media (max-width: __BP_LG__px) {
+  .app { grid-template-columns: calc(var(--control-height-md) + var(--space-3) * 2) minmax(0, 1fr); }
+  .sidebar { padding: var(--space-4) var(--space-3); align-items: center; }
+  .sidebar .label-text, .nav-label, .nav .count, .sidebar-foot .label-text { display: none; }
+  .nav a { width: var(--control-height-md); justify-content: center; padding: 0; }
+  .brand { padding: 0; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-2 { grid-template-columns: minmax(0, 1fr); }
+}
+/* Below bp.md: drawer navigation, one primary + a menu in the header, a single column */
+@media (max-width: __BP_MD__px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .sidebar { display: none; }
+  .btn.menu-btn { display: inline-flex; }
+  .topbar { padding: 0 var(--space-4); }
+  .topbar .search, .topbar .hide-sm { display: none; }
+  main { padding: var(--space-6) var(--space-4); gap: var(--space-4); }
+  .page-head { align-items: flex-start; }
+  .page-head .actions .secondary { display: none; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+  .kpi { padding: var(--space-4); }
+  .kpi .value { font-size: var(--type-h2-size); line-height: var(--type-h2-line); }
+  .card-head, .card-body, .toolbar { padding-left: var(--space-4); padding-right: var(--space-4); }
+  th:first-child, td:first-child { padding-left: var(--space-4); }
+  th:last-child, td:last-child { padding-right: var(--space-4); }
+  .col-p2 { display: none; }
+  .toolbar .chip { display: none; }
+  .toolbar .search { flex: 1; }
+  .cell-title { max-width: calc(var(--control-sidebar-width) * 0.75); min-width: 0; }
+  .col-p1 { display: none; }
+  .cell-title .when { display: inline; }
+  dl.facts { grid-template-columns: minmax(0, 1fr); gap: var(--space-1) 0; }
+  dl.facts dd { margin-bottom: var(--space-2); }
+  .auth { grid-template-columns: minmax(0, 1fr); }
+  .auth-brand { display: none; }
+  .row-2 { grid-template-columns: minmax(0, 1fr); }
+  .dlg-foot { flex-direction: column-reverse; }
+  .dlg-foot .btn { justify-content: center; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-dash" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></symbol>
+    <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="2"/><rect x="2" y="14" width="20" height="7" rx="2"/><path d="M6 6.5h.01M6 17.5h.01"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M7 7l10 10M17 8v9H8"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+    <symbol id="i-git" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 9v6a3 3 0 0 0 3 3h6"/></symbol>
+  </defs>
+</svg>
+
+<template id="shell-side">
+  <aside class="sidebar" aria-label="Main">
+    <div class="brand"><span class="brand-mark" data-brand><svg class="icon" aria-hidden="true"><use href="#i-rocket"/></svg></span><span class="label-text">__PRODUCT__</span></div>
+    <nav class="nav nav-group" aria-label="Main">
+      <span class="nav-label">Workspace</span>
+      <a href="#shell" data-nav="shell"><svg class="icon" aria-hidden="true"><use href="#i-dash"/></svg><span class="label-text">Overview</span></a>
+      <a href="#list" data-nav="list"><svg class="icon" aria-hidden="true"><use href="#i-rocket"/></svg><span class="label-text">Releases</span><span class="count">24</span></a>
+      <a href="#empty" data-nav="empty"><svg class="icon" aria-hidden="true"><use href="#i-list"/></svg><span class="label-text">Backlog</span></a>
+      <a href="#detail" data-nav="detail"><svg class="icon" aria-hidden="true"><use href="#i-server"/></svg><span class="label-text">Environments</span></a>
+    </nav>
+    <nav class="nav nav-group" aria-label="Settings">
+      <span class="nav-label">Team</span>
+      <a href="#list"><svg class="icon" aria-hidden="true"><use href="#i-users"/></svg><span class="label-text">Members</span></a>
+      <a href="#list"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg><span class="label-text">Settings</span></a>
+    </nav>
+    <div class="sidebar-foot"><span class="avatar">MN</span><span class="label-text"><span>Mai Nguyen</span><br><span class="t-small muted">Release manager</span></span></div>
+  </aside>
+</template>
+<template id="shell-top">
+  <header class="topbar">
+    <button class="btn ghost icon-only menu-btn" aria-label="Open navigation"><svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg></button>
+    <div class="search" role="search"><svg class="icon sm" aria-hidden="true"><use href="#i-search"/></svg><span>Search releases, tickets…</span><kbd>Ctrl K</kbd></div>
+    <span class="spacer"></span>
+    <button class="btn ghost icon-only hide-sm" aria-label="Notifications"><svg class="icon" aria-hidden="true"><use href="#i-bell"/></svg></button>
+    <button class="btn ghost icon-only" aria-label="Account"><span class="avatar">MN</span></button>
+  </header>
+</template>
+
+<!-- 1 · shell + dashboard -->
+<section class="screen" id="s-shell">
+  <div class="app"><div data-slot="side"></div>
+    <div class="main-col"><div data-slot="top"></div>
+      <main id="main">
+        <div class="page-head">
+          <div class="lead"><h1>Good morning, Mai</h1><p class="muted">Three releases ship this week. One needs a decision.</p></div>
+          <div class="actions"><a class="btn secondary" href="#list">View calendar</a><a class="btn primary" data-variant="primary" href="#form"><svg class="icon sm" aria-hidden="true"><use href="#i-plus"/></svg>New release</a></div>
+        </div>
+        <div class="kpis">
+          <div class="card kpi"><div class="label">Active releases <svg class="icon sm" aria-hidden="true"><use href="#i-rocket"/></svg></div><div class="value">12</div><span class="delta up"><svg class="icon sm" aria-hidden="true"><use href="#i-up"/></svg>3 since last week</span></div>
+          <div class="card kpi"><div class="label">Test pass rate <svg class="icon sm" aria-hidden="true"><use href="#i-check"/></svg></div><div class="value">96.4%</div><span class="delta up"><svg class="icon sm" aria-hidden="true"><use href="#i-up"/></svg>1.2 pts</span></div>
+          <div class="card kpi"><div class="label">Open blockers <svg class="icon sm" aria-hidden="true"><use href="#i-alert"/></svg></div><div class="value">4</div><span class="delta down"><svg class="icon sm" aria-hidden="true"><use href="#i-down"/></svg>2 new today</span></div>
+          <div class="card kpi"><div class="label">Lead time <svg class="icon sm" aria-hidden="true"><use href="#i-clock"/></svg></div><div class="value">3.2 d</div><span class="delta up"><svg class="icon sm" aria-hidden="true"><use href="#i-up"/></svg>0.6 d faster</span></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><div><h2>Deployments</h2><p class="t-small muted">Last 8 weeks, by environment</p></div><button class="btn sm">8 weeks</button></div>
+            <div class="card-body chart">
+              <svg viewBox="0 0 560 200" role="img" aria-label="Deployments per week, stacked by environment">
+                <g class="grid"><line x1="32" y1="20" x2="560" y2="20"/><line x1="32" y1="70" x2="560" y2="70"/><line x1="32" y1="120" x2="560" y2="120"/><line x1="32" y1="170" x2="560" y2="170"/></g>
+                <g class="axis"><text x="0" y="24">60</text><text x="0" y="74">40</text><text x="0" y="124">20</text><text x="6" y="174">0</text><text x="48" y="194">W33</text><text x="114" y="194">W34</text><text x="180" y="194">W35</text><text x="246" y="194">W36</text><text x="312" y="194">W37</text><text x="378" y="194">W38</text><text x="444" y="194">W39</text><text x="510" y="194">W40</text></g>
+                <g id="bars"></g>
+              </svg>
+              <div class="legend"><span><i class="swatch" style="background:var(--dataviz-1)"></i>Dev</span><span><i class="swatch" style="background:var(--dataviz-2)"></i>Staging</span><span><i class="swatch" style="background:var(--dataviz-3)"></i>UAT</span><span><i class="swatch" style="background:var(--dataviz-4)"></i>Live</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div><h2>Needs attention</h2><p class="t-small muted">Across all projects</p></div></div>
+            <ul class="card-body timeline">
+              <li><span class="badge" data-status="danger"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg><span>Failed</span></span><div><a href="#detail">Payments 4.12 on staging</a><p class="t-small muted">Smoke suite failed · 12 min ago</p></div></li>
+              <li><span class="badge" data-status="warning"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg><span>At risk</span></span><div><a href="#detail">Checkout v2</a><p class="t-small muted">2 MUST FIX open · ships Thu</p></div></li>
+              <li><span class="badge" data-status="info"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span>Decision</span></span><div><a href="#detail">Sprint 221</a><p class="t-small muted">Go / no-go due today, 16:00</p></div></li>
+              <li><span class="badge" data-status="success"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Live</span></span><div><a href="#detail">Mobile 3.4</a><p class="t-small muted">Rolled out to 100% · yesterday</p></div></li>
+            </ul>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · list / table -->
+<section class="screen" id="s-list">
+  <div class="app"><div data-slot="side"></div>
+    <div class="main-col"><div data-slot="top"></div>
+      <main id="main">
+        <div class="page-head">
+          <div class="lead"><h1>Releases</h1><p class="muted">24 releases across 3 projects</p></div>
+          <div class="actions"><button class="btn secondary">Export</button><button class="btn icon-only" aria-label="More actions"><svg class="icon" aria-hidden="true"><use href="#i-more"/></svg></button><a class="btn primary" data-variant="primary" href="#form"><svg class="icon sm" aria-hidden="true"><use href="#i-plus"/></svg>New release</a></div>
+        </div>
+        <div class="card" data-table></div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · detail -->
+<section class="screen" id="s-detail">
+  <div class="app"><div data-slot="side"></div>
+    <div class="main-col"><div data-slot="top"></div>
+      <main id="main">
+        <div class="page-head">
+          <div class="lead">
+            <nav class="crumbs" aria-label="Breadcrumb"><a href="#list">Releases</a><svg class="icon sm" aria-hidden="true"><use href="#i-chev"/></svg><span>Checkout v2</span></nav>
+            <div style="display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap"><h1>Checkout v2</h1><span class="badge" data-status="warning"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg><span>At risk</span></span></div>
+            <p class="muted">Sprint train 42 · ships Thu 16 Oct · owned by Mai Nguyen</p>
+          </div>
+          <div class="actions"><button class="btn secondary">Share</button><button class="btn icon-only" aria-label="More actions"><svg class="icon" aria-hidden="true"><use href="#i-more"/></svg></button><button class="btn primary" data-variant="primary">Record decision</button></div>
+        </div>
+        <nav class="tabs" aria-label="Release sections"><a href="#detail" aria-current="page">Overview</a><a href="#detail">Scope <span class="muted">40</span></a><a href="#detail">Deploy</a><a href="#detail">Test</a><a href="#detail">Bugs <span class="muted">6</span></a><a href="#detail">Activity</a></nav>
+        <div class="grid-2">
+          <div style="display:grid;gap:var(--space-4);min-width:0">
+            <div class="card">
+              <div class="card-head"><div><h2>Deploy progress</h2><p class="t-small muted">40 tickets in scope</p></div><a href="#detail" class="t-small">Open deploy board</a></div>
+              <div class="card-body env">
+                <div><span class="name">DEV</span><span class="badge" data-status="success"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg><span>Deployed</span></span><div class="bar"><i style="width:100%;background:var(--color-success)"></i></div><span class="t-small muted num">40 / 40 tickets</span></div>
+                <div><span class="name">STAGING</span><span class="badge" data-status="danger"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg><span>Failed</span></span><div class="bar"><i style="width:72%;background:var(--color-danger)"></i></div><span class="t-small muted num">29 / 40 tickets</span></div>
+                <div><span class="name">UAT</span><span class="badge neutral"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span>Waiting</span></span><div class="bar"><i style="width:0"></i></div><span class="t-small muted num">0 / 40 tickets</span></div>
+                <div><span class="name">LIVE</span><span class="badge neutral"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg><span>Not deployed</span></span><div class="bar"><i style="width:0"></i></div><span class="t-small muted num">0 / 40 tickets</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><h2>Activity</h2></div>
+              <ul class="card-body timeline">
+                <li><span class="avatar a2">TL</span><div><p><strong>Tuan Le</strong> attached <a href="#detail">PAY-1182</a> as MUST FIX</p><p class="t-small muted">12 min ago</p></div></li>
+                <li><span class="avatar a3">HP</span><div><p><strong>Hoa Pham</strong> deployed 29 tickets to staging</p><p class="t-small muted">1 h ago</p></div></li>
+                <li><span class="avatar a4">KD</span><div><p><strong>Khanh Do</strong> moved the release date to Thu 16 Oct</p><p class="t-small muted">Yesterday</p></div></li>
+              </ul>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-head"><h2>Details</h2></div>
+            <dl class="card-body facts">
+              <dt>Status</dt><dd><span class="badge" data-status="warning"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg><span>At risk</span></span></dd>
+              <dt>Train</dt><dd><a href="#list">Sprint train 42</a></dd>
+              <dt>Planned</dt><dd>Thu 16 Oct, 18:00</dd>
+              <dt>Decision</dt><dd>Due today, 16:00</dd>
+              <dt>Pass rate</dt><dd class="num">94.1% of 1,280 cases</dd>
+              <dt>Blockers</dt><dd class="num">2 MUST FIX · 4 high</dd>
+              <dt>Branch</dt><dd><span style="font-family:var(--font-mono);font-size:var(--type-small-size)">release/checkout-v2</span></dd>
+            </dl>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · form / dialog (over the list) -->
+<section class="screen" id="s-form">
+  <div class="app" aria-hidden="true"><div data-slot="side"></div>
+    <div class="main-col"><div data-slot="top"></div>
+      <main>
+        <div class="page-head"><div class="lead"><h1>Releases</h1><p class="muted">24 releases across 3 projects</p></div><div class="actions"><button class="btn secondary" tabindex="-1">Export</button><button class="btn primary" data-variant="primary" tabindex="-1">New release</button></div></div>
+        <div class="card" data-table></div>
+      </main>
+    </div>
+  </div>
+  <div class="scrim">
+    <div role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+      <div class="dlg-head"><h2 id="dlg-title">New release</h2><p class="muted">A release groups tickets that ship together. You can add scope after creating it.</p></div>
+      <form class="dlg-body" onsubmit="return false">
+        <div class="field"><label for="f-name">Name</label><input class="input" id="f-name" value="Checkout v3"></div>
+        <div class="row-2">
+          <div class="field"><label for="f-train">Release train</label><select class="input" id="f-train"><option>Sprint train 43</option></select></div>
+          <div class="field"><label for="f-date">Planned date</label><input class="input" id="f-date" value="2026-10-30" aria-invalid="true" aria-describedby="f-date-err"><span class="err" id="f-date-err"><svg class="icon sm" aria-hidden="true"><use href="#i-alert"/></svg>Sprint train 43 ends on 28 Oct.</span></div>
+        </div>
+        <div class="field"><label for="f-goal">Goal <span class="muted">(optional)</span></label><textarea class="input" id="f-goal">Ship the redesigned payment step to all EU customers.</textarea></div>
+      </form>
+      <div class="dlg-foot"><button class="btn">Cancel</button><button class="btn primary" data-variant="primary" type="submit">Create release</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · empty state -->
+<section class="screen" id="s-empty">
+  <div class="app"><div data-slot="side"></div>
+    <div class="main-col"><div data-slot="top"></div>
+      <main id="main">
+        <div class="page-head"><div class="lead"><h1>Backlog</h1><p class="muted">Tickets waiting for a release</p></div></div>
+        <div class="card">
+          <div class="empty" data-empty>
+            <span class="empty-icon"><svg class="icon lg" aria-hidden="true" data-icon><use href="#i-inbox"/></svg></span>
+            <h2>No backlog items yet</h2>
+            <p class="muted">Backlog items are tickets you plan to ship. Import them from your tracker, or add the first one by hand.</p>
+            <div class="actions"><button class="btn">Import from Jira</button><button class="btn primary" data-variant="primary"><svg class="icon sm" aria-hidden="true"><use href="#i-plus"/></svg>Add backlog item</button></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · sign-in -->
+<section class="screen" id="s-sign-in">
+  <div class="auth">
+    <div class="auth-brand">
+      <div class="brand"><span class="brand-mark" data-brand><svg class="icon" aria-label="__PRODUCT__"><use href="#i-rocket"/></svg></span><span>__PRODUCT__</span></div>
+      <blockquote><p>“We went from a spreadsheet and three chat threads per release to one page everyone trusts.”</p><footer>Linh Tran, Head of QA</footer></blockquote>
+    </div>
+    <div class="auth-form">
+      <form onsubmit="return false">
+        <div class="head"><h1>Sign in</h1><p class="muted">Use your work e-mail and password.</p></div>
+        <div class="field"><label for="s-email">E-mail</label><input class="input" id="s-email" type="email" placeholder="name@company.com"></div>
+        <div class="field"><label for="s-pw" style="display:flex;justify-content:space-between">Password <a href="#sign-in" class="t-small" style="font-weight:var(--weight-regular)">Forgot password?</a></label><input class="input" id="s-pw" type="password"></div>
+        <button class="btn primary" data-variant="primary" type="submit">Sign in</button>
+        <div class="divider">or</div>
+        <button class="btn" type="button">Continue with SSO</button>
+        <p class="fine">No account? Ask your workspace owner for an invitation.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<template id="table">
+  <div class="card-head"><div><h2>All releases</h2><p class="t-small muted">Sorted by planned date</p></div></div>
+  <div class="toolbar">
+    <div class="search"><svg class="icon sm" aria-hidden="true"><use href="#i-search"/></svg><span>Filter releases…</span></div>
+    <button class="chip"><svg class="icon sm" aria-hidden="true"><use href="#i-plus"/></svg>Status</button>
+    <button class="chip"><svg class="icon sm" aria-hidden="true"><use href="#i-plus"/></svg>Project</button>
+    <button class="chip"><svg class="icon sm" aria-hidden="true"><use href="#i-plus"/></svg>Owner</button>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th scope="col">Release</th><th scope="col">Status</th><th scope="col" class="col-p2">Owner</th><th scope="col" class="col-p3">Progress</th><th scope="col" class="right col-p2">Tickets</th><th scope="col" class="right col-p3">Pass rate</th><th scope="col" class="right col-p1">Planned</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+  <div class="table-foot"><span>Showing 1–7 of 24</span><div class="actions"><button class="btn sm">Previous</button><button class="btn sm">Next</button></div></div>
+</template>
+
+<script>
+const ROWS = [
+  ['Checkout v2', 'Payments · train 42', 'warning', 'At risk', 'MN', 'Mai Nguyen', 72, 40, '94.1%', '16 Oct'],
+  ['Payments 4.12', 'Payments · hotfix', 'danger', 'Failed', 'TL', 'Tuan Le', 38, 6, '81.0%', '15 Oct'],
+  ['Sprint 221', 'Core · train 42', 'info', 'Decision due', 'HP', 'Hoa Pham', 90, 52, '97.3%', '17 Oct'],
+  ['Mobile 3.4', 'Mobile · train 41', 'success', 'Live', 'KD', 'Khanh Do', 100, 31, '99.2%', '13 Oct'],
+  ['Search relevance tuning for the merchant catalogue', 'Core · train 42', 'success', 'Ready', 'LT', 'Linh Tran', 100, 18, '98.6%', '20 Oct'],
+  ['Partner API v3', 'Platform · train 43', 'info', 'In progress', 'QB', 'Quang Bui', 24, 64, '—', '28 Oct'],
+  ['Invoices export', 'Billing · train 43', 'warning', 'At risk', 'AV', 'An Vu', 12, 9, '88.5%', '30 Oct'],
+];
+const ICON = { success: 'i-check', warning: 'i-alert', danger: 'i-x', info: 'i-clock' };
+const AV = ['', 'a2', 'a3', 'a4'];
+const rows = ROWS.map((r, i) => `<tr>
+  <td><div class="cell-title"><a href="#detail" title="${r[0]}">${r[0]}</a><span class="t-small muted" title="${r[1]}">${r[1]}<span class="when"> · ${r[9]}</span></span></div></td>
+  <td><span class="badge" data-status="${r[2]}"><svg class="icon" aria-hidden="true"><use href="#${ICON[r[2]]}"/></svg><span>${r[3]}</span></span></td>
+  <td class="col-p2"><span class="people"><span class="avatar ${AV[i % 4]}">${r[4]}</span>${r[5]}</span></td>
+  <td class="col-p3"><span class="progress" role="img" aria-label="${r[6]}% deployed"><i style="width:${r[6]}%"></i></span> <span class="t-small muted num">${r[6]}%</span></td>
+  <td class="right col-p2">${r[7]}</td><td class="right col-p3">${r[8]}</td><td class="right col-p1">${r[9]}</td></tr>`).join('');
+for (const slot of document.querySelectorAll('[data-table]')) { slot.append(document.getElementById('table').content.cloneNode(true)); slot.querySelector('#rows').innerHTML = rows; slot.querySelector('#rows').removeAttribute('id'); }
+for (const s of document.querySelectorAll('[data-slot="side"]')) s.replaceWith(document.getElementById('shell-side').content.cloneNode(true));
+for (const s of document.querySelectorAll('[data-slot="top"]')) s.replaceWith(document.getElementById('shell-top').content.cloneNode(true));
+// Stacked bars, 2px surface gap between segments (dataviz palette, series in fixed order).
+const W = [[14, 9, 6, 4], [16, 10, 7, 5], [12, 8, 6, 3], [18, 12, 8, 6], [15, 11, 9, 7], [20, 14, 10, 8], [17, 12, 9, 6], [22, 15, 11, 9]];
+let g = '';
+W.forEach((wk, i) => { let y = 170; const x = 44 + i * 66; wk.forEach((v, k) => { const h = v * 2.5; y -= h; g += `<rect x="${x}" y="${y + 1}" width="36" height="${Math.max(h - 2, 1)}" rx="${k === wk.length - 1 ? 4 : 0}" fill="var(--dataviz-${k + 1})"><title>W${33 + i} · ${['Dev', 'Staging', 'UAT', 'Live'][k]}: ${v}</title></rect>`; }); });
+document.getElementById('bars').innerHTML = g;
+function route() {
+  const name = (location.hash || '#shell').slice(1);
+  for (const s of document.querySelectorAll('.screen')) s.classList.toggle('on', s.id === `s-${name}`);
+  if (!document.querySelector('.screen.on')) document.getElementById('s-shell').classList.add('on');
+  const on = document.querySelector('.screen.on');
+  for (const a of on.querySelectorAll('[data-nav]')) a.toggleAttribute('aria-current', a.dataset.nav === name);
+  for (const a of on.querySelectorAll('[data-nav][aria-current]')) a.setAttribute('aria-current', 'page');
+}
+addEventListener('hashchange', route);
+route();
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+# Template — <root>/deployment/<slug>/topology.yaml (G2 drafts it, G10 completes it; DEV-CONTRACTS §13.14)
+#
+# authored_by: dev-designing-cloud
+# reviewed_by: dev-reviewing-design (G2) · dev-reviewing-deployment (G10)
+#
+# The cloud deployment model: where each component runs, on which provider, and what talks to what.
+# It is the ONE source of the cloud diagram, the service table and the IaC drift check — never draw
+# the cloud picture by hand, and never edit the generated .drawio as the source.
+#
+#   node <root>/scripts/topology.mjs check  <slug>                 rules, no browser
+#   node <root>/scripts/topology.mjs render <slug> [--as gcp,oci]  → <root>/diagrams/<slug>/cloud/
+#   node <root>/scripts/topology.mjs table  <slug>                 the service table for the artifact
+#   node <root>/scripts/topology.mjs drift  <slug> --iac infra/    against Terraform / Bicep / manifests
+#
+#   provider  aws · azure · gcp · alibaba · oci
+#   groups    the provider's containers, outermost first. `kind` is the provider's own (aws: cloud,
+#             region, vpc, zone, public-subnet, private-subnet, security-group, auto-scaling …) or a
+#             neutral one that draws on any provider: root, region, network, zone, subnet,
+#             public-subnet. Kubernetes: cluster, namespace, node-pool. `in` names the parent group.
+#             Optional: label, cidr, public: true.
+#   nodes     one per component. `kind` is neutral (vm, container-service, kubernetes, sql-database,
+#             cache, queue, object-storage, load-balancer, cdn, waf, secrets, monitoring … and
+#             k8s-deployment, k8s-ingress …; the full list is KINDS in scripts/lib/clouds.mjs).
+#             Optional: label (the component name the prose uses), count, iac (the IaC resource
+#             name it must match, or false when it is not built by IaC — say why in the artifact).
+#   edges     [from, to, "label"] — label every edge with the protocol and port, or what flows.
+#             `{ from, to, label, async: true }` draws a dashed (asynchronous) edge.
+
+provider: <aws>
+title: <Feature> — production
+env: production
+
+groups:
+  - { id: cloud, kind: root }
+  - { id: region, kind: region, in: cloud, label: <eu-west-1> }
+  - { id: net, kind: network, in: region, label: <VPC>, cidr: <10.0.0.0/16> }
+  - { id: public, kind: public-subnet, in: net, label: Public subnet }
+  - { id: app, kind: subnet, in: net, label: App subnet }
+  - { id: data, kind: subnet, in: net, label: Data subnet }
+
+nodes:
+  - { id: users, kind: users, label: Customers }
+  - { id: edge, kind: cdn, in: region, label: <Edge> }
+  - { id: lb, kind: load-balancer, in: public, label: <Public load balancer> }
+  - { id: api, kind: container-service, in: app, label: <Order API>, count: 2 }
+  - { id: db, kind: sql-database, in: data, label: <Orders database> }
+
+edges:
+  - [users, edge, "HTTPS 443"]
+  - [edge, lb, "HTTPS 443"]
+  - [lb, api, "HTTP 8080"]
+  - [api, db, "PostgreSQL 5432"]

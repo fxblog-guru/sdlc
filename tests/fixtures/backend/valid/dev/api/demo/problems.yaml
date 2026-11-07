@@ -1,0 +1,26 @@
+problems:
+  - type: /problems/validation
+    status: 422
+    title: Validation failed
+    when: One or more fields break a rule; each is named in errors[].
+    extensions: [errors]
+    client_ux: field
+  - type: /problems/release-not-found
+    status: 404
+    title: Release not found
+    when: The release does not exist, or the caller may not see it.
+    extensions: []
+    client_ux: page
+  - type: /problems/release-conflict
+    status: 409
+    title: Release in another state
+    when: The release's status does not allow this write.
+    extensions: [current_status]
+    client_ux: conflict
+    refs: [REQ-012]
+  - type: /problems/internal
+    status: 500
+    title: Internal error
+    when: Something failed on the server; the trace id is logged.
+    extensions: []
+    client_ux: toast

@@ -1,0 +1,21 @@
+provider: gcp
+title: Catalog on GKE — production
+groups:
+  - { id: cloud, kind: root }
+  - { id: proj, kind: project, in: cloud, label: shop-prod }
+  - { id: region, kind: region, in: proj, label: europe-west1 }
+  - { id: gke, kind: cluster, in: region, label: GKE prod }
+  - { id: ns, kind: namespace, in: gke, label: catalog }
+nodes:
+  - { id: users, kind: users, label: Shoppers }
+  - { id: lb, kind: load-balancer, in: region, label: Global LB }
+  - { id: ing, kind: k8s-ingress, in: ns, label: catalog ingress }
+  - { id: api, kind: k8s-deployment, in: ns, label: Catalog API, count: 3 }
+  - { id: hpa, kind: k8s-hpa, in: ns, label: api HPA }
+  - { id: db, kind: sql-database, in: region, label: Catalog DB }
+edges:
+  - [users, lb, "HTTPS 443"]
+  - [lb, ing, "HTTPS 443"]
+  - [ing, api, "HTTP 8080"]
+  - [hpa, api, "scales"]
+  - [api, db, "PostgreSQL 5432 (private IP)"]

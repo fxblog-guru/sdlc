@@ -1,0 +1,7 @@
+web/src/features/backlog/BacklogItemDialog.tsx
+web/src/features/backlog/BacklogItemDialog.test.tsx
+web/src/components/DiscardGuard.tsx
+internal/bug/counts.go
+internal/bug/counts_test.go
+internal/release/service.go
+dev/plan/x/tasks.md

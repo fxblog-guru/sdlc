@@ -1,0 +1,8 @@
+#!/bin/sh
+# pre-commit — the branch rule (git-branch-enforce, DEV-CONTRACTS §18.1): no commit on a protected
+# branch, and a branch named by DEV-PROFILE §Delivery `Branch convention`. Enable once per clone:
+#   git config core.hooksPath .sdlc/ci/git-hooks        (dev/ci/git-hooks on a dev/ root)
+# The SDLC root is this file's grandparent, whatever it is called (§2).
+root=$(cd "$(dirname "$0")/../.." && pwd)
+command -v node >/dev/null 2>&1 || { echo "pre-commit: node not found, branch rule skipped" >&2; exit 0; }
+exec node "$root/scripts/commit-lint.mjs" --root "$root" --branch

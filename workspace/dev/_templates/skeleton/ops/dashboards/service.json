@@ -1,0 +1,26 @@
+{
+  "title": "app — RED and SLOs",
+  "uid": "app-red",
+  "tags": ["app", "slo"],
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Requests per second",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "targets": [{ "expr": "sum(rate(http_requests_total{service=\"app\"}[5m]))" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "5xx by route",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "targets": [{ "expr": "sum by (route) (rate(http_requests_total{service=\"app\",code=~\"5..\"}[5m]))" }]
+    },
+    {
+      "type": "timeseries",
+      "title": "p95 latency (SLO-001)",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "targets": [{ "expr": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{service=\"app\"}[5m])))" }]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "base": "http://127.0.0.1:0",
+  "roles": {
+    "member": { "signIn": { "url": "/sign-in", "fields": { "Role": "$EXPLORE_FIXTURE_ROLE" }, "submit": { "role": "button", "name": "Sign in" } } },
+    "viewer": { "anonymous": true }
+  },
+  "probes": [
+    { "ub": "UB-001", "role": "member", "kind": "discard-guard", "url": "/releases", "open": { "role": "button", "name": "New release" }, "fill": { "label": "Name" }, "via": ["escape", "close", "back"], "guard": { "testid": "discard-bar" } },
+    { "ub": "UB-002", "role": "member", "kind": "focus-return", "url": "/releases", "open": { "role": "button", "name": "New release" } },
+    { "ub": "UB-003", "role": "member", "kind": "url-state", "url": "/releases", "steps": [ { "fill": { "label": "Filter" }, "value": "hotfix" } ], "params": { "q": "hotfix" }, "keep": [ { "label": "Filter" } ] },
+    { "ub": "UB-004", "role": "member", "kind": "double-submit", "url": "/releases", "steps": [ { "click": { "role": "button", "name": "New release" } }, { "fill": { "label": "Name" }, "value": "Sprint 230" } ], "submit": { "role": "button", "name": "Save" }, "request": { "method": "POST", "url": "/api/releases" } },
+    { "ub": "UB-005", "role": "viewer", "kind": "permission", "url": "/releases?as=viewer", "absent": [ { "role": "button", "name": "New release" } ], "denied": { "css": "#denied" } },
+    { "ub": "UB-006", "role": "member", "kind": "keyboard", "url": "/releases", "target": { "role": "button", "name": "New release" }, "press": "Enter", "expect": { "role": "dialog" } }
+  ]
+}

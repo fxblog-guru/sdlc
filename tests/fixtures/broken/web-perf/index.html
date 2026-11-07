@@ -1,0 +1,7 @@
+<!doctype html>
+<!-- web-perf broken fixture: the heavy page. Every budget must fail: a padded bundle (js_kb), six
+     ~120 ms main-thread tasks (long_tasks, tbt_ms), a late banner that pushes content down (cls),
+     and its main content painted ~2.8 s late (lcp_ms). -->
+<html lang="en"><head><meta charset="utf-8"><title>heavy</title>
+<style>body{font:16px/1.5 system-ui;margin:24px}h1{font-size:48px}</style></head>
+<body><div id="root"></div><script type="module" src="/assets/heavy.js"></script></body></html>

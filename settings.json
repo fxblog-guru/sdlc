@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Read(~/.claude/plugins/**)",
+      "Write",
+      "Bash(node dev/scripts/lint-dev.mjs*)",
+      "Bash(node dev/scripts/build-state.mjs*)",
+      "Bash(node .sdlc/scripts/lint-dev.mjs*)",
+      "Bash(node .sdlc/scripts/build-state.mjs*)",
+      "Bash(node dev/scripts/learn.mjs recall*)",
+      "Bash(node dev/scripts/learn.mjs show*)",
+      "Bash(node .sdlc/scripts/learn.mjs recall*)",
+      "Bash(node .sdlc/scripts/learn.mjs show*)",
+      "Bash(node dev/scripts/learn.mjs brief*)",
+      "Bash(node .sdlc/scripts/learn.mjs brief*)",
+      "Bash(node dev/scripts/ideas.mjs list*)",
+      "Bash(node .sdlc/scripts/ideas.mjs list*)",
+      "Bash(node dev/scripts/gate-effect.mjs*)",
+      "Bash(node .sdlc/scripts/gate-effect.mjs*)",
+      "Bash(node dev/scripts/bench.mjs score*)",
+      "Bash(node .sdlc/scripts/bench.mjs score*)",
+      "Bash(npm run dev:lint*)",
+      "Bash(npm run dev:state*)",
+      "Bash(go build ./...)",
+      "Bash(go vet ./...)",
+      "Bash(go test ./...*)",
+      "Bash(gofmt -l *)",
+      "Bash(golangci-lint run*)",
+      "Bash(govulncheck ./...)",
+      "Bash(uv run *)",
+      "Bash(ruff check*)",
+      "Bash(ruff format --check*)",
+      "Bash(mypy *)",
+      "Bash(pytest*)",
+      "Bash(pip-audit*)",
+      "Bash(npm run build*)",
+      "Bash(npm run lint*)",
+      "Bash(npm run typecheck*)",
+      "Bash(npm test*)",
+      "Bash(npx tsc --noEmit*)",
+      "Bash(npx eslint *)",
+      "Bash(npx prettier --check*)",
+      "Bash(npx vitest run*)",
+      "Bash(npm audit --omit=dev*)",
+      "Bash(migrate -path * -database * version)",
+      "Bash(alembic history*)",
+      "Bash(alembic current*)",
+      "Bash(psql -c \\d*)",
+      "Bash(mysql -e SHOW*)",
+      "Bash(gitleaks detect*)",
+      "Bash(git log*)",
+      "Bash(git status --porcelain*)",
+      "Bash(git diff --stat*)",
+      "Bash(git rev-parse*)",
+      "Bash(git branch --show-current)",
+      "Bash(git -C * log*)",
+      "Bash(git -C * rev-parse*)",
+      "Bash(git -C * status --porcelain*)",
+      "Bash(git -C * diff --stat*)"
+    ],
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f*)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)",
+      "Bash(rm -rf .)",
+      "Bash(git reset --hard origin/*)",
+      "Bash(git commit --no-verify*)",
+      "Bash(git push --no-verify*)",
+      "Write(.env)",
+      "Write(**/.env)",
+      "Edit(.env)",
+      "Edit(**/.env)"
+    ],
+    "ask": [
+      "Bash(migrate * up*)",
+      "Bash(migrate * down*)",
+      "Bash(alembic upgrade*)",
+      "Bash(alembic downgrade*)",
+      "Bash(git push*)",
+      "Bash(gh pr create*)",
+      "Bash(glab mr create*)",
+      "Bash(kubectl apply*)",
+      "Bash(docker push*)",
+      "Bash(terraform apply*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/bash-guard.mjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/lint-on-write.mjs",
+            "timeout": 20
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/bash-guard.mjs",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/rebuild-state.mjs",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/session-start.mjs",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "command -v recall >/dev/null 2>&1 && recall context || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "command -v recall >/dev/null 2>&1 && recall session end || true",
+            "timeout": 20
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "generator": "design-system.mjs preview",
+  "widths": [
+    1280,
+    360
+  ],
+  "total_bytes": 463822,
+  "presets": {
+    "carbon-enterprise": {
+      "name": "Carbon Enterprise",
+      "html_sha256": "5b59cd47fd854c153f709e74a0967fb25448fbd424c5cb3167ee572c9c74cccc",
+      "shots": {
+        "360": 22760,
+        "1280": 35456
+      },
+      "bytes": 58216,
+      "rubric": {
+        "hard_fails": 0,
+        "advisory": []
+      }
+    },
+    "clean-saas": {
+      "name": "Clean SaaS",
+      "html_sha256": "cb5d6ae4ff74fa1f966f7419df50b277d3c4264f7350091b8403256b40b3bf02",
+      "shots": {
+        "360": 24703,
+        "1280": 35978
+      },
+      "bytes": 60681,
+      "rubric": {
+        "hard_fails": 0,
+        "advisory": []
+      }
+    },
+    "dense-enterprise": {
+      "name": "Dense Enterprise",
+      "html_sha256": "4ad1a7632a0c9004b5bca4632773d9e20017c8a6a52740edae358227f6f66186",
+      "shots": {
+        "360": 22596,
+        "1280": 34674
+      },
+      "bytes": 57270,
+      "rubric": {
+        "hard_fails": 0,
+        "advisory": []
+      }
+    },
+    "editorial": {
+      "name": "Editorial",
+      "html_sha256": "8bc47dc3b8829013c02d00484ec766db4da181442b41d1be79acb1f9d20938ef",
+      "shots": {
+        "360": 31118,
+        "1280": 45424
+      },
+      "bytes": 76542,
+      "rubric": {
+        "hard_fails": 0,
+        "advisory": []
+      }
+    },
+    "field-mobile": {
+      "name": "Field Mobile",
+      "html_sha256": "f2b84524ec5a39cae1d7633e1ac01e0eb0bce8f4ef150571659dfe7b90078ac8",
+      "shots": {
+        "360": 33259,
+        "1280": 46843
+      },
+      "bytes": 80102,
+      "rubric": {
+        "hard_fails": 0,
+        "advisory": []
+      }
+    },
+    "friendly-consumer": {
+      "name": "Friendly Consumer",
+      "html_sha256": "2daa5f83c91f1e4c101c94b46901971fb29f728795bd4ec66ab0af441f55ce8b",
+      "shots": {
+        "360": 28622,
+        "1280": 40799
+      },
+      "bytes": 69421,
+      "rubric": {
+        "hard_fails": 0,
+        "advisory": []
+      }
+    },
+    "primer-product": {
+      "name": "Primer Product",
+      "html_sha256": "21b3fe9c495db461dd1be6e521d0713ce3a0abd55208fc4e50b792d307f26a22",
+      "shots": {
+        "360": 24592,
+        "1280": 36998
+      },
+      "bytes": 61590,
+      "rubric": {
+        "hard_fails": 0,
+        "advisory": []
+      }
+    }
+  }
+}

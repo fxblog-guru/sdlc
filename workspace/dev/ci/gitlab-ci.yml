@@ -1,0 +1,200 @@
+# Agentic SDLC — the contract checks, CI-side.
+#
+# Include from your own .gitlab-ci.yml:
+#
+#   include:
+#     - local: .sdlc/ci/gitlab-ci.yml      (dev/ci/gitlab-ci.yml on a dev/ root)
+#
+# SDLC_ROOT below names the root (DEV-CONTRACTS §2); migrate-root.mjs rewrites it when it moves.
+#
+# These jobs run exactly what a developer runs locally. That is the point: a CI job that checks
+# something the local tooling does not is a rule people meet for the first time on a red pipeline,
+# and a local check CI does not enforce is a suggestion. One implementation, two places it runs.
+#
+# Nothing here judges quality. The linter checks syntax and contract (DEV-CONTRACTS §11); whether
+# an artifact is any good is a gate reviewer's job, and a reviewer is a model call, not a CI step.
+
+variables:
+  SDLC_ROOT: .sdlc
+
+.sdlc-base:
+  image: node:22-alpine
+  # The gate machinery is dependency-free by design - no npm install, nothing to pin, nothing to
+  # audit. If that ever stops being true, this comment is the thing to come back and delete.
+  before_script:
+    - node --version
+
+sdlc:lint:
+  extends: .sdlc-base
+  stage: test
+  script:
+    - node $SDLC_ROOT/scripts/lint-dev.mjs
+  rules:
+    - changes: [$SDLC_ROOT/**/*]
+  # Warnings do not fail the build (DEV-CONTRACTS §11). Errors do.
+
+sdlc:pr-scan:
+  extends: .sdlc-base
+  stage: test
+  # The mechanical half of /sdlc-review-pr on every merge request, whatever it touches: secrets,
+  # edited migrations, focused/deleted tests, source with no test, contract changes, gate verdicts.
+  # Only BLOCKER fails the job; the rest is in the log for the human reviewer. alpine has no git.
+  image: node:22
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - node $SDLC_ROOT/scripts/pr-scan.mjs --root $SDLC_ROOT --base "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --head "$CI_COMMIT_SHA" --fail-on BLOCKER
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+sdlc:deploy-plan:
+  extends: .sdlc-base
+  stage: test
+  # A merge request that touches a migration, a schema file, an API contract or an event schema states
+  # how it deploys and how it comes back: `## Rollout and rollback` in the slug's pull-request.md
+  # (slices.md on the fast track), with `### Data` when rows already there change (§7, §13.4). A
+  # change with none of those passes without notes. alpine has no git.
+  image: node:22
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - node $SDLC_ROOT/scripts/deploy-plan-check.mjs --root $SDLC_ROOT --base "$CI_MERGE_REQUEST_DIFF_BASE_SHA" --head "$CI_COMMIT_SHA"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+sdlc:state:
+  extends: .sdlc-base
+  stage: test
+  script:
+    # state.json and DASHBOARD.md are derived and not tracked (§8): build them here, and fail if a
+    # copy was committed anyway — a committed index is the file every lane conflicts on.
+    - node $SDLC_ROOT/scripts/build-state.mjs --quiet
+    - |
+      if git ls-files --error-unmatch "$SDLC_ROOT/state.json" "$SDLC_ROOT/DASHBOARD.md" >/dev/null 2>&1; then
+        echo "$SDLC_ROOT/state.json or $SDLC_ROOT/DASHBOARD.md is tracked. They are derived (§8):"
+        echo "  git rm --cached $SDLC_ROOT/state.json $SDLC_ROOT/DASHBOARD.md"
+        exit 1
+      fi
+  artifacts:
+    paths: [$SDLC_ROOT/state.json, $SDLC_ROOT/DASHBOARD.md]
+  rules:
+    - changes: [$SDLC_ROOT/**/*]
+
+sdlc:commits:
+  extends: .sdlc-base
+  stage: test
+  # Every commit of the merge request: Conventional Commits, closed scopes, Refs: trailers, the
+  # merge template and the branch rule (§18.1). The same script the commit-msg hook runs.
+  variables:
+    GIT_DEPTH: 0
+  script:
+    - node $SDLC_ROOT/scripts/commit-lint.mjs --range "$CI_MERGE_REQUEST_DIFF_BASE_SHA..$CI_COMMIT_SHA" --no-size
+    - node $SDLC_ROOT/scripts/commit-lint.mjs --branch "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+sdlc:skeleton:
+  extends: .sdlc-base
+  stage: test
+  # The G6 skeleton exists, base images are digest-pinned, versions are exact (§18.2). Before the
+  # skeleton tasks land this fails by design: G7 cannot pass without them.
+  script:
+    - node $SDLC_ROOT/scripts/skeleton-check.mjs --source .
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+sdlc:gates:
+  extends: .sdlc-base
+  stage: test
+  script:
+    # The board, printed into the job log. It is not an assertion - it is so that anyone opening a
+    # failed pipeline can see where the initiative actually is without cloning it.
+    - node $SDLC_ROOT/scripts/status.mjs || true
+    # A merge request may not carry a gate that is BLOCKED or CHANGES_REQUESTED.
+    - |
+      node -e "
+        const s = require('./' + process.env.SDLC_ROOT + '/state.json');
+        const bad = [];
+        for (const i of s.initiatives ?? []) {
+          for (const st of i.stages ?? []) {
+            if (st.state === 'BLOCKED' || st.state === 'CHANGES_REQUESTED') {
+              bad.push(i.slug + ' ' + st.gate + ' ' + st.state);
+            }
+          }
+        }
+        if (bad.length) { console.error('gates not clear:\n  ' + bad.join('\n  ')); process.exit(1); }
+        console.log('all gates clear');
+      "
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+sdlc:design:
+  extends: .sdlc-base
+  stage: test
+  variables:
+    # Space-separated UI source directories to scan for hard-coded colours and px, e.g. "app components".
+    # Leave empty to check the design system only.
+    SDLC_UI_SRC: ""
+  script:
+    # The design system is decided once (§13.3). CI checks that it still holds: every contrast pair
+    # passes, and nobody hand-edited the rendered design-tokens.md.
+    - |
+      if [ -f "$SDLC_ROOT/docs/design-tokens.json" ]; then
+        node $SDLC_ROOT/scripts/design-system.mjs check
+      else
+        echo "no design system yet ($SDLC_ROOT/docs/design-tokens.json) - skipping; /sdlc-ui will require one"
+      fi
+    - if [ -n "$SDLC_UI_SRC" ]; then node $SDLC_ROOT/scripts/design-system.mjs scan $SDLC_UI_SRC; fi
+
+sdlc:data-guard:
+  extends: .sdlc-base
+  stage: test
+  script:
+    # Seeds and fixtures hold only domains in DEV-PROFILE `Allowed data domains` (§13.6). The preview
+    # DB is checked by the verifier with --dump; CI sees only the files.
+    - node $SDLC_ROOT/scripts/data-guard.mjs --source .
+
+# The committed security ledger has no untriaged critical/high, no expired acceptance (§13.15).
+# The scanners themselves run in the project's own pipeline (the ci-cd templates); their SARIF can
+# be folded in here with `security-scan.mjs ingest reports/*.sarif` before the check.
+sdlc:security-ledger:
+  extends: .sdlc-base
+  stage: test
+  rules:
+    - exists: [$SDLC_ROOT/security/findings.md]
+  script:
+    - node $SDLC_ROOT/scripts/security-scan.mjs check --root $SDLC_ROOT
+
+# The §13.11 catalogues against the code. SDLC_SLUG names the initiative being merged; with none,
+# only the checks that need no slug run. Spectral ($SDLC_ROOT/ci/spectral.yaml) may replace api-style-check.
+sdlc:backend-catalogues:
+  extends: .sdlc-base
+  stage: test
+  script:
+    - node $SDLC_ROOT/scripts/schema-lint.mjs ${SDLC_MIGRATIONS:+--migrations "$SDLC_MIGRATIONS"}
+    - node $SDLC_ROOT/scripts/conventions-check.mjs --source .
+    - |
+      if [ -n "$SDLC_SLUG" ]; then
+        node $SDLC_ROOT/scripts/problems-check.mjs "$SDLC_SLUG" --source . ${SDLC_WEB_SRC:+--client $SDLC_WEB_SRC}
+        node $SDLC_ROOT/scripts/api-style-check.mjs "$SDLC_SLUG"
+        node $SDLC_ROOT/scripts/api-contract-check.mjs "$SDLC_SLUG"
+        node $SDLC_ROOT/scripts/limits-check.mjs "$SDLC_SLUG" --source . ${SDLC_WEB_SRC:+--web $SDLC_WEB_SRC}
+        node $SDLC_ROOT/scripts/obs-check.mjs "$SDLC_SLUG" --source .
+      fi
+
+# The ZAP passive baseline against a deployed preview (§13.6). Set SDLC_PREVIEW_URL to a review app
+# or a preview environment this pipeline deploys; with none, the job is skipped, and G8 records the
+# DAST row NOT RUN with that reason. A pass here is the CI proof G9 asks for (§5.6).
+sdlc:dast-baseline:
+  stage: test
+  image: zaproxy/zap-stable:2.16.1@sha256:7840969c7c9fead565bf9734b12f49f6886db90b1d35b1f74d79710bbd081dab
+  variables:
+    SDLC_PREVIEW_URL: ""
+  script:
+    - mkdir -p /zap/wrk && zap-baseline.py -t "$SDLC_PREVIEW_URL" -J zap.json -r zap.html -I
+    - cp /zap/wrk/zap.* . || true
+  artifacts:
+    when: always
+    paths: [zap.json, zap.html]
+  rules:
+    - if: $SDLC_PREVIEW_URL != ""

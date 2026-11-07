@@ -1,0 +1,26 @@
+# ops/otel/backends/grafana.yaml — logs to Loki, traces to Tempo, metrics to Mimir/Prometheus,
+# through one OTLP endpoint (Grafana Cloud's OTLP gateway, or a self-hosted grafana/otel-lgtm).
+#
+#   GRAFANA_OTLP_ENDPOINT   https://otlp-gateway-<zone>.grafana.net/otlp  ·  http://lgtm:4318
+#   GRAFANA_OTLP_AUTH       base64("<instance id>:<token>"); empty for a self-hosted stack
+
+exporters:
+  otlphttp/grafana:
+    endpoint: ${env:GRAFANA_OTLP_ENDPOINT}
+    headers:
+      Authorization: "Basic ${env:GRAFANA_OTLP_AUTH:-}"
+
+service:
+  pipelines:
+    logs/grafana:
+      receivers: [filelog]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/grafana]
+    traces/grafana:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/grafana]
+    metrics/grafana:
+      receivers: [prometheus, otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [otlphttp/grafana]

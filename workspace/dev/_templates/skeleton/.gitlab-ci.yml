@@ -1,0 +1,93 @@
+# The project's pipeline: the bundle's checks, then one image built once and promoted
+# (DEV-CONTRACTS §18.7): test → build → publish → deploy_staging → deploy_production.
+#   publish            pushes the image to this project's GitLab registry, tagged with the commit SHA
+#   deploy_staging     automatic, on the default branch only
+#   deploy_production  manual, after staging, and the same SHA staging ran — never a rebuild
+# Deploys go through ops/deploy.sh <env> <sha>; swap its body for another host, keep the interface.
+# A database change: set DB_SNAPSHOT per environment (neon, rds, cloudsql, pg_dump) and deploy.sh
+# runs ops/snapshot.sh before the new version migrates. Staging migrates first, on every merge, so
+# the snapshot, the migration and the smoke are rehearsed there before anyone approves production.
+# The plan itself is the PR's `## Rollout and rollback`; sdlc:deploy-plan fails a DB or API change
+# that lacks it.
+# Every image is pinned by digest (DEV-CONTRACTS §18.2); Renovate keeps the digests current. A
+# product with two deployables (web-api-ts) repeats build and publish per app with IMAGE set to
+# $CI_REGISTRY_IMAGE/web and $CI_REGISTRY_IMAGE/api, and deploys both at one SHA.
+include:
+  - local: .sdlc/ci/gitlab-ci.yml
+
+stages: [test, build, publish, deploy_staging, deploy_production]
+
+default:
+  image: node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+
+variables:
+  IMAGE: $CI_REGISTRY_IMAGE
+  DOCKER_IMAGE: docker:27.5.1-cli@sha256:851f91d241214e7c6db86513b270d58776379aacc5eb9c4a87e5b47115e3065c
+  DIND_IMAGE: docker:27.5.1-dind@sha256:aa3df78ecf320f5fafdce71c659f1629e96e9de0968305fe1de670e0ca9176ce
+  DEPLOY_IMAGE: alpine:3.22@sha256:2e0b81d60597f449baa56dc25d355367869d2dca4cd57e866f1e2b52af3eb55f
+
+check:
+  stage: test
+  script:
+    - npx --yes @go-task/cli@3.44.0 check
+
+.docker:
+  image: $DOCKER_IMAGE
+  services:
+    - name: $DIND_IMAGE
+      alias: docker
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+
+build:
+  extends: .docker
+  stage: build
+  script:
+    - docker build --build-arg VERSION="$CI_COMMIT_SHORT_SHA" -t "$IMAGE:$CI_COMMIT_SHA" .
+    - docker save "$IMAGE:$CI_COMMIT_SHA" -o image.tar
+  artifacts:
+    paths: [image.tar]
+    expire_in: 1 day
+
+publish:
+  extends: .docker
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - docker load -i image.tar
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker push "$IMAGE:$CI_COMMIT_SHA"
+
+.deploy:
+  image: $DEPLOY_IMAGE
+  before_script:
+    - apk add --no-cache openssh-client
+  dependencies: []
+
+deploy_staging:
+  extends: .deploy
+  stage: deploy_staging
+  environment:
+    name: staging
+    url: $STAGING_URL
+  resource_group: staging
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  script:
+    - sh ops/deploy.sh staging "$CI_COMMIT_SHA"
+
+deploy_production:
+  extends: .deploy
+  stage: deploy_production
+  needs: [deploy_staging]
+  environment:
+    name: production
+    url: $PRODUCTION_URL
+  resource_group: production
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: manual
+  allow_failure: false
+  script:
+    - sh ops/deploy.sh production "$CI_COMMIT_SHA"

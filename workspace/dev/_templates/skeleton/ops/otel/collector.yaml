@@ -1,0 +1,67 @@
+# ops/otel/collector.yaml — the one place telemetry leaves the service (DEV-CONTRACTS §13.5).
+#
+# The code writes JSON lines to stdout, serves /metrics and sends spans by OTLP; it never names a
+# vendor. This base file receives all three and prints a sample locally. A backend is an overlay
+# in backends/, added with a second --config; overlays add named pipelines, so they combine:
+#
+#   otelcol-contrib --config collector.yaml --config backends/grafana.yaml --config backends/s3.yaml
+#
+# Every value comes from the environment (ops/config/<env>.env.example), never from this file.
+
+receivers:
+  otlp:
+    protocols:
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
+  # The service's stdout, as the container runtime writes it. Kubernetes: /var/log/pods/*/*/*.log.
+  filelog:
+    include: ["${env:OBS_LOG_PATH:-/var/log/pods/*/*/*.log}"]
+    start_at: end
+    include_file_path: true
+    operators:
+      - type: container
+      - type: json_parser
+        if: 'body matches "^\\{"'
+        timestamp: { parse_from: attributes.timestamp, layout_type: gotime, layout: "2006-01-02T15:04:05.999999999Z07:00" }
+        severity: { parse_from: attributes.level }
+      # trace_id/span_id in the line become the record's own, so a log opens its trace.
+      - type: trace_parser
+        trace_id: { parse_from: attributes.trace_id }
+        span_id: { parse_from: attributes.span_id }
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: service
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["${env:OBS_METRICS_TARGET:-localhost:8080}"]
+
+processors:
+  memory_limiter: { check_interval: 1s, limit_percentage: 80, spike_limit_percentage: 25 }
+  resource:
+    attributes:
+      - { key: deployment.environment.name, value: "${env:APP_ENV:-local}", action: upsert }
+  batch: {}
+
+exporters:
+  # Local and CI: a sample of what would be shipped, so a missing field is seen before a backend.
+  debug: { verbosity: basic, sampling_initial: 5, sampling_thereafter: 200 }
+
+extensions:
+  health_check: { endpoint: 0.0.0.0:13133 }
+
+service:
+  extensions: [health_check]
+  pipelines:
+    logs/local:
+      receivers: [filelog]
+      processors: [memory_limiter, resource, batch]
+      exporters: [debug]
+    traces/local:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [debug]
+    metrics/local:
+      receivers: [prometheus, otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [debug]

@@ -1,0 +1,25 @@
+{
+  "label": "release-management",
+  "version": null,
+  "initiatives": 1,
+  "first_pass": {
+    "passed": 1,
+    "of": 8,
+    "rate": 0.125,
+    "ci95": [
+      0.022,
+      0.471
+    ]
+  },
+  "rework": 8,
+  "reopened": 27,
+  "repeated": {
+    "total": 0,
+    "uncovered": 0
+  },
+  "unverified": 0,
+  "lessons": {
+    "active": 0,
+    "established": 0
+  }
+}

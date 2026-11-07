@@ -1,0 +1,588 @@
+{
+  "_comment": "GENERATED from tests/fixtures/valid by tests/regen-sample.mjs — do not hand-edit. It exists so the VS Code extension is tested against the shape the builder really emits; the paired test in build-state.test.mjs fails when the two diverge.",
+  "schema": 1,
+  "generator_version": "1.11.0",
+  "generated_at": "2026-09-18T21:00:00Z",
+  "source_hash": "075b3f481762ee3b4dc0c9037f2a50b5b546fcc5e1b1ead2485d28d95cfbec65",
+  "project": "Unnamed project",
+  "knowledge": {
+    "gate": "GK",
+    "stage": "knowledge",
+    "state": "PASS",
+    "run_id": "20260915-093012-1a4e",
+    "attempt": 1,
+    "log": "dev/reviews/_repo/GK-knowledge-20260915-093012-1a4e.md",
+    "inputs": [],
+    "outputs": [
+      {
+        "path": "dev/knowledge/codebase-map.md",
+        "sha256": "baec5963603f493e202d4bfd29f400dd793c300ae752fafbb3e997da3e43335e",
+        "current": true,
+        "actual": "baec5963603f493e202d4bfd29f400dd793c300ae752fafbb3e997da3e43335e",
+        "role": "output"
+      }
+    ],
+    "findings": {
+      "blocker": 0,
+      "major": 0,
+      "minor": 1,
+      "info": 0
+    },
+    "open_findings": [
+      "CR-101"
+    ],
+    "skip_reason": null,
+    "updated_at": "2026-09-15T09:30:12Z",
+    "cards": [
+      {
+        "path": "dev/knowledge/codebase-map.md",
+        "sha256": "baec5963603f493e202d4bfd29f400dd793c300ae752fafbb3e997da3e43335e",
+        "grounded_at": "8556e8f1333dbd5ae6e636f6ea650868685e5168"
+      }
+    ]
+  },
+  "initiatives": [
+    {
+      "slug": "demo",
+      "tracker": "none",
+      "change_class": "change",
+      "title": "Testers cannot find a case they wrote last month, so they rewrite it — and the duplicate then drifts from the original.",
+      "current_gate": "G2",
+      "blocked": false,
+      "ui_approved": false,
+      "stages": [
+        {
+          "gate": "G0",
+          "stage": "intake",
+          "state": "PASS",
+          "run_id": "20260916-091203-3f2a",
+          "attempt": 1,
+          "log": "dev/reviews/demo/G0-intake-20260916-091203-3f2a.md",
+          "inputs": [],
+          "outputs": [
+            {
+              "path": "dev/intake/demo/problem.md",
+              "sha256": "50faca82540e0bdc237790944de57613af330bb1f709c23ba08167042d48a8b6",
+              "current": true,
+              "actual": "50faca82540e0bdc237790944de57613af330bb1f709c23ba08167042d48a8b6",
+              "role": "output"
+            }
+          ],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 1,
+            "info": 0
+          },
+          "open_findings": [
+            "CR-001"
+          ],
+          "skip_reason": null,
+          "updated_at": "2026-09-16T09:12:03Z",
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": "2026-09-16T09:12:03Z",
+          "tokens": null
+        },
+        {
+          "gate": "G1",
+          "stage": "requirements",
+          "state": "PASS",
+          "run_id": "20260916-141855-b09e",
+          "attempt": 2,
+          "log": "dev/reviews/demo/G1-requirements-20260916-141855-b09e-a2.md",
+          "inputs": [
+            {
+              "path": "dev/intake/demo/problem.md",
+              "sha256": "50faca82540e0bdc237790944de57613af330bb1f709c23ba08167042d48a8b6",
+              "current": true,
+              "actual": "50faca82540e0bdc237790944de57613af330bb1f709c23ba08167042d48a8b6",
+              "role": "input"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "dev/requirements/demo/requirements.md",
+              "sha256": "974bade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "current": true,
+              "actual": "974bade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "role": "output"
+            }
+          ],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 1
+          },
+          "open_findings": [
+            "CR-004"
+          ],
+          "skip_reason": null,
+          "updated_at": "2026-09-16T14:18:55Z",
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": "2026-09-16T14:18:55Z",
+          "tokens": null
+        },
+        {
+          "gate": "G2",
+          "stage": "design",
+          "state": "STALE",
+          "run_id": "20260917-101422-7c15",
+          "attempt": 1,
+          "log": "dev/reviews/demo/G2-design-20260917-101422-7c15.md",
+          "inputs": [
+            {
+              "path": "dev/requirements/demo/requirements.md",
+              "sha256": "0000ade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "current": false,
+              "actual": "974bade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "role": "input"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "dev/design/demo/architecture.md",
+              "sha256": "92e4e03f77ddbea45fbd01a77ccc931dfb48de39e2cd720ba728d96fb34bacd0",
+              "current": true,
+              "actual": "92e4e03f77ddbea45fbd01a77ccc931dfb48de39e2cd720ba728d96fb34bacd0",
+              "role": "output"
+            }
+          ],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 2,
+            "info": 0
+          },
+          "open_findings": [
+            "CR-005",
+            "CR-006"
+          ],
+          "skip_reason": null,
+          "updated_at": "2026-09-17T10:14:22Z",
+          "stale_because": [
+            {
+              "path": "dev/requirements/demo/requirements.md",
+              "was": "0000ade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "now": "974bade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "role": "input"
+            }
+          ],
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": "2026-09-17T10:14:22Z",
+          "tokens": null
+        },
+        {
+          "gate": "G3",
+          "stage": "data",
+          "state": "NOT_STARTED",
+          "run_id": null,
+          "attempt": null,
+          "log": null,
+          "inputs": [],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": null,
+          "updated_at": null,
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": null,
+          "tokens": null
+        },
+        {
+          "gate": "G4",
+          "stage": "api",
+          "state": "NOT_STARTED",
+          "run_id": null,
+          "attempt": null,
+          "log": null,
+          "inputs": [],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": null,
+          "updated_at": null,
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": null,
+          "tokens": null
+        },
+        {
+          "gate": "G5",
+          "stage": "ui",
+          "state": "STALE",
+          "run_id": "20260917-160500-9a22",
+          "attempt": 1,
+          "log": "dev/reviews/demo/G5-ui-20260917-160500-9a22.md",
+          "inputs": [
+            {
+              "path": "dev/design/demo/architecture.md",
+              "sha256": "92e4e03f77ddbea45fbd01a77ccc931dfb48de39e2cd720ba728d96fb34bacd0",
+              "current": true,
+              "actual": "92e4e03f77ddbea45fbd01a77ccc931dfb48de39e2cd720ba728d96fb34bacd0",
+              "role": "input"
+            }
+          ],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": {
+            "type": "NOT_APPLICABLE",
+            "explanation": "This change adds two API endpoints and no user-facing surface. The applicability rule for G5 is that the change renders something a person sees; the architecture declares no screen, no component and no route."
+          },
+          "updated_at": "2026-09-17T16:05:00Z",
+          "stale_because": [
+            {
+              "path": "(upstream G2)",
+              "was": "-",
+              "now": "-",
+              "role": "upstream"
+            }
+          ],
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": "2026-09-17T16:05:00Z",
+          "tokens": null
+        },
+        {
+          "gate": "G6",
+          "stage": "plan",
+          "state": "STALE",
+          "run_id": "20260918-104512-0e91",
+          "attempt": 1,
+          "log": "dev/reviews/demo/G6-plan-20260918-104512-0e91.md",
+          "inputs": [
+            {
+              "path": "dev/requirements/demo/requirements.md",
+              "sha256": "974bade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "current": true,
+              "actual": "974bade17d352cb1de1f65c118fd0f46df48ff057366b782157469a584c50507",
+              "role": "input"
+            },
+            {
+              "path": "dev/design/demo/architecture.md",
+              "sha256": "92e4e03f77ddbea45fbd01a77ccc931dfb48de39e2cd720ba728d96fb34bacd0",
+              "current": true,
+              "actual": "92e4e03f77ddbea45fbd01a77ccc931dfb48de39e2cd720ba728d96fb34bacd0",
+              "role": "input"
+            }
+          ],
+          "outputs": [
+            {
+              "path": "dev/plan/demo/tasks.md",
+              "sha256": "c1244de3ac90d006b435c6622b3d4b74ac62804127d351d6da67f355771fefb9",
+              "current": true,
+              "actual": "c1244de3ac90d006b435c6622b3d4b74ac62804127d351d6da67f355771fefb9",
+              "role": "output"
+            }
+          ],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 1,
+            "info": 0
+          },
+          "open_findings": [
+            "CR-007"
+          ],
+          "skip_reason": null,
+          "updated_at": "2026-09-18T10:45:12Z",
+          "stale_because": [
+            {
+              "path": "(upstream G2)",
+              "was": "-",
+              "now": "-",
+              "role": "upstream"
+            }
+          ],
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": "2026-09-18T10:45:12Z",
+          "tokens": null
+        },
+        {
+          "gate": "G7",
+          "stage": "implementation",
+          "state": "AUTHORING",
+          "run_id": null,
+          "attempt": null,
+          "log": null,
+          "inputs": [],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": null,
+          "updated_at": null,
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": null,
+          "tokens": null
+        },
+        {
+          "gate": "G8",
+          "stage": "verification",
+          "state": "NOT_STARTED",
+          "run_id": null,
+          "attempt": null,
+          "log": null,
+          "inputs": [],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": null,
+          "updated_at": null,
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": null,
+          "tokens": null
+        },
+        {
+          "gate": "G9",
+          "stage": "release",
+          "state": "NOT_STARTED",
+          "run_id": null,
+          "attempt": null,
+          "log": null,
+          "inputs": [],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": null,
+          "updated_at": null,
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": null,
+          "tokens": null
+        },
+        {
+          "gate": "G10",
+          "stage": "deployment",
+          "state": "NOT_STARTED",
+          "run_id": null,
+          "attempt": null,
+          "log": null,
+          "inputs": [],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": null,
+          "updated_at": null,
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": null,
+          "tokens": null
+        },
+        {
+          "gate": "G11",
+          "stage": "monitoring",
+          "state": "NOT_STARTED",
+          "run_id": null,
+          "attempt": null,
+          "log": null,
+          "inputs": [],
+          "outputs": [],
+          "findings": {
+            "blocker": 0,
+            "major": 0,
+            "minor": 0,
+            "info": 0
+          },
+          "open_findings": [],
+          "skip_reason": null,
+          "updated_at": null,
+          "rounds": {
+            "used": 0,
+            "cap": 2
+          },
+          "first_log_at": null,
+          "tokens": null
+        }
+      ],
+      "requirements": [
+        {
+          "id": "REQ-001",
+          "title": "A tester can create a test case",
+          "priority": "P0",
+          "tasks": [
+            "TASK-001",
+            "TASK-002"
+          ],
+          "covered": true
+        },
+        {
+          "id": "REQ-002",
+          "title": "A tester can list cases, paginated and sorted",
+          "priority": "P0",
+          "tasks": [
+            "TASK-003"
+          ],
+          "covered": true
+        },
+        {
+          "id": "REQ-101",
+          "title": "The list responds quickly under normal load",
+          "priority": "p95 < 300ms at 50 rps",
+          "tasks": [
+            "TASK-004"
+          ],
+          "covered": true
+        }
+      ],
+      "tasks": [
+        {
+          "id": "TASK-001",
+          "title": "Migration: create testcases",
+          "status": "done",
+          "stack": "sql",
+          "files": [
+            "migrations/202609181200createtestcases.up.sql"
+          ],
+          "requirements": [
+            "REQ-001"
+          ],
+          "depends_on": [],
+          "tests": [
+            "repointegrationtest.go"
+          ],
+          "commit": "3f9c2a1"
+        },
+        {
+          "id": "TASK-002",
+          "title": "Repository: insert and fetch by id",
+          "status": "done",
+          "stack": "go",
+          "files": [
+            "internal/testcase/repo.go"
+          ],
+          "requirements": [
+            "REQ-001"
+          ],
+          "depends_on": [
+            "TASK-001"
+          ],
+          "tests": [
+            "repotest.go"
+          ],
+          "commit": "7b41e0d"
+        },
+        {
+          "id": "TASK-003",
+          "title": "GET list with cursor pagination",
+          "status": "in-progress",
+          "stack": "go",
+          "files": [
+            "internal/testcase/handlerlist.go"
+          ],
+          "requirements": [
+            "REQ-002"
+          ],
+          "depends_on": [
+            "TASK-002"
+          ],
+          "tests": [
+            "handlerlisttest.go"
+          ]
+        },
+        {
+          "id": "TASK-004",
+          "title": "RED metrics on the list path",
+          "status": "todo",
+          "stack": "go",
+          "files": [
+            "internal/testcase/telemetry.go"
+          ],
+          "requirements": [
+            "REQ-101"
+          ],
+          "depends_on": [
+            "TASK-003"
+          ],
+          "tests": [
+            "telemetrytest.go"
+          ]
+        }
+      ],
+      "decisions": [
+        {
+          "id": "DEC-001",
+          "question": "Is title search enough, or do testers need to search step text?",
+          "status": "open",
+          "blocks": [
+            "TASK-003"
+          ],
+          "answer": "—",
+          "blocking": false
+        },
+        {
+          "id": "DEC-002",
+          "question": "Default page size for the case list?",
+          "status": "answered",
+          "blocks": [],
+          "answer": "20",
+          "blocking": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,362 @@
+{
+  "schema": 2,
+  "id": "primer-product",
+  "name": "Primer Product",
+  "summary": "GitHub's Primer palette and scale: cool greys, accent blue, system fonts, 6px corners, 14px body. Familiar to anyone who uses developer tools.",
+  "best_for": [
+    "developer tools, internal platforms, code-adjacent products",
+    "teams that want a proven, widely-recognised system with no brand work",
+    "products used alongside GitHub, where the resemblance helps rather than confuses"
+  ],
+  "avoid_for": [
+    "customer-facing products that must not look like GitHub",
+    "consumer audiences — pick friendly-consumer"
+  ],
+  "shell": "topbar-sidebar",
+  "density": "comfortable",
+  "provenance": {
+    "source": "GitHub Primer — @primer/primitives functional themes light.css / dark.css (unpkg, fetched 2026-09-30)",
+    "license": "MIT",
+    "url": "https://github.com/primer/primitives",
+    "adapted": [
+      "primary is Primer's accent blue (bgColor-accent-emphasis / fgColor-accent), not its green primary button — one colour serves buttons and links here",
+      "primary-hover light #0550ae (Primer blue-6); dark primary-fg is the canvas colour so it passes on #4493f8",
+      "border-strong uses a darker grey than Primer's control border (#d1d9e0, 1.4:1) so input edges meet WCAG 1.4.11"
+    ]
+  },
+  "kit": {
+    "react": {
+      "name": "shadcn/ui (Radix + Tailwind), themed with these tokens",
+      "notes": "Primer React (@primer/react, MIT) is the native kit if you want GitHub's components as well as its colours"
+    },
+    "nextjs": {
+      "name": "shadcn/ui (Radix + Tailwind), themed with these tokens",
+      "notes": "Primer React needs client components; shadcn keeps server components simple"
+    }
+  },
+  "kit_base": "shadcn-new-york",
+  "font": {
+    "sans": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans\", Helvetica, Arial, sans-serif",
+    "mono": "ui-monospace, SFMono-Regular, \"SF Mono\", Menlo, Consolas, monospace"
+  },
+  "color": {
+    "light": {
+      "bg": "#ffffff",
+      "surface": "#ffffff",
+      "surface-2": "#f6f8fa",
+      "border": "#d1d9e0",
+      "border-strong": "#818b98",
+      "text": "#1f2328",
+      "text-muted": "#59636e",
+      "primary": "#0969da",
+      "primary-hover": "#0550ae",
+      "primary-fg": "#ffffff",
+      "success": "#1a7f37",
+      "warning": "#9a6700",
+      "danger": "#d1242f",
+      "danger-fg": "#ffffff",
+      "info": "#0969da",
+      "focus": "#0969da"
+    },
+    "dark": {
+      "bg": "#0d1117",
+      "surface": "#151b23",
+      "surface-2": "#212830",
+      "border": "#3d444d",
+      "border-strong": "#768390",
+      "text": "#f0f6fc",
+      "text-muted": "#9198a1",
+      "primary": "#4493f8",
+      "primary-hover": "#6cb6ff",
+      "primary-fg": "#0d1117",
+      "success": "#3fb950",
+      "warning": "#d29922",
+      "danger": "#f85149",
+      "danger-fg": "#0d1117",
+      "info": "#4493f8",
+      "focus": "#1f6feb"
+    }
+  },
+  "type": {
+    "body": "sm",
+    "scale": {
+      "xs": [
+        12,
+        1.5,
+        "labels, counters"
+      ],
+      "sm": [
+        14,
+        1.5,
+        "body, table cells, inputs"
+      ],
+      "md": [
+        16,
+        1.5,
+        "lead text"
+      ],
+      "lg": [
+        20,
+        1.4,
+        "section headings (h3)"
+      ],
+      "xl": [
+        24,
+        1.3,
+        "page headings (h2)"
+      ],
+      "2xl": [
+        32,
+        1.25,
+        "page title (h1)"
+      ],
+      "3xl": [
+        40,
+        1.2,
+        "display"
+      ]
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "ratio": 1.2,
+    "roles": {
+      "display": {
+        "size": 40,
+        "line": 1.1,
+        "weight": 700,
+        "tracking": -0.02
+      },
+      "h1": {
+        "size": 32,
+        "line": 1.2,
+        "weight": 600,
+        "tracking": -0.015
+      },
+      "h2": {
+        "size": 24,
+        "line": 1.25,
+        "weight": 600,
+        "tracking": -0.01
+      },
+      "h3": {
+        "size": 20,
+        "line": 1.35,
+        "weight": 600,
+        "tracking": 0
+      },
+      "body": {
+        "size": 14,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0
+      },
+      "small": {
+        "size": 12,
+        "line": 1.45,
+        "weight": 400,
+        "tracking": 0.005
+      },
+      "mono": {
+        "size": 13,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "font": "mono"
+      },
+      "tabular": {
+        "size": 14,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "numeric": "tabular-nums"
+      }
+    }
+  },
+  "space": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48,
+    64
+  ],
+  "radius": {
+    "none": 0,
+    "sm": 3,
+    "md": 6,
+    "lg": 6,
+    "xl": 12,
+    "full": 9999
+  },
+  "elevation": {
+    "light": {
+      "0": "none",
+      "1": "0 1px 1px rgb(31 35 40 / 0.04)",
+      "2": "0 3px 6px rgb(140 149 159 / 0.15)",
+      "3": "0 8px 24px rgb(140 149 159 / 0.20)"
+    },
+    "dark": {
+      "0": "none",
+      "1": "0 0 transparent",
+      "2": "0 3px 6px rgb(1 4 9 / 0.8)",
+      "3": "0 8px 24px rgb(1 4 9 / 0.8)"
+    }
+  },
+  "motion": {
+    "fast": "80ms",
+    "base": "160ms",
+    "slow": "240ms",
+    "easing": "cubic-bezier(0.33, 1, 0.68, 1)"
+  },
+  "breakpoints": {
+    "sm": 360,
+    "md": 768,
+    "lg": 1024,
+    "xl": 1280,
+    "2xl": 1536
+  },
+  "control": {
+    "height-sm": 28,
+    "height-md": 32,
+    "height-lg": 40,
+    "row-height": 40,
+    "target-min": 24,
+    "sidebar-width": 256,
+    "content-max": 1280
+  },
+  "neutral": {
+    "50": "#f9fafb",
+    "100": "#f3f4f6",
+    "200": "#e5e7eb",
+    "300": "#d1d5db",
+    "400": "#9ca3af",
+    "500": "#6b7280",
+    "600": "#4b5563",
+    "700": "#374151",
+    "800": "#1f2937",
+    "900": "#111827",
+    "950": "#030712"
+  },
+  "dataviz": {
+    "light": [
+      "#2a78d6",
+      "#eb6834",
+      "#1baf7a",
+      "#eda100",
+      "#e87ba4",
+      "#008300",
+      "#6250d6",
+      "#e34948"
+    ],
+    "dark": [
+      "#3987e5",
+      "#d95926",
+      "#199e70",
+      "#c98500",
+      "#d55181",
+      "#008300",
+      "#9085e9",
+      "#e66767"
+    ]
+  },
+  "icon": {
+    "set": "octicons (or lucide)",
+    "stroke": 1.5,
+    "sizes": {
+      "sm": 12,
+      "md": 16,
+      "lg": 24
+    }
+  },
+  "density_modes": {
+    "comfortable": {
+      "row-height": 40,
+      "control-height": 32,
+      "cell-pad-x": 16,
+      "cell-pad-y": 8
+    },
+    "compact": {
+      "row-height": 32,
+      "control-height": 28,
+      "cell-pad-x": 8,
+      "cell-pad-y": 4
+    }
+  },
+  "extra_roles": {
+    "tint-success": {
+      "light": "#e4f0e7",
+      "dark": "#1d372b",
+      "use": "success badge, notice and row fill"
+    },
+    "tint-warning": {
+      "light": "#f3ede0",
+      "dark": "#373223",
+      "use": "warning badge, notice and row fill"
+    },
+    "tint-danger": {
+      "light": "#f9e5e6",
+      "dark": "#3e252a",
+      "use": "danger badge, notice and row fill"
+    },
+    "tint-info": {
+      "light": "#e1edfb",
+      "dark": "#1d3149",
+      "use": "info badge, notice and row fill"
+    }
+  },
+  "extra_contrast_pairs": [
+    {
+      "fg": "text",
+      "bg": "tint-success",
+      "kind": "text"
+    },
+    {
+      "fg": "success",
+      "bg": "tint-success",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-warning",
+      "kind": "text"
+    },
+    {
+      "fg": "warning",
+      "bg": "tint-warning",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-danger",
+      "kind": "text"
+    },
+    {
+      "fg": "danger",
+      "bg": "tint-danger",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-info",
+      "kind": "text"
+    },
+    {
+      "fg": "info",
+      "bg": "tint-info",
+      "kind": "non-text"
+    }
+  ],
+  "scrim": {
+    "light": "rgba(9, 9, 11, 0.45)",
+    "dark": "rgba(0, 0, 0, 0.6)"
+  }
+}

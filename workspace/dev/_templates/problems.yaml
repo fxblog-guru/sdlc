@@ -1,0 +1,123 @@
+# Template — <root>/api/<slug>/problems.yaml (G4, DEV-CONTRACTS §13.11)
+#
+# authored_by: dev-designing-api
+# reviewed_by: dev-reviewing-api
+#
+# The problem catalogue: every RFC 9457 `type` this service answers with, once. The openapi
+# ProblemType enum lists exactly these types; the code's one status table and mapper hold exactly
+# these statuses and titles; the ui-spec error-UX matrix handles each by its client_ux.
+# problems-check.mjs fails any drift between the four. A brownfield service drafts this file with
+# `problems-check.mjs <slug> --source . --bootstrap` and then corrects it by hand.
+#
+#   type        /problems/<noun>-<state>, kebab-case. One suffix per meaning:
+#                 -not-found     does not exist for this caller
+#                 -unavailable   exists, cannot be used now (expired, spent, window closed)
+#                 -limit-reached a count or size cap
+#                 -conflict      clashes with another record or the current state
+#                 -forbidden     the caller may not
+#                 -invalid       a rule across several fields
+#                 -required      a header or confirmation the request lacks
+#               Reserved, outside the grammar: validation, malformed-request, unauthenticated,
+#               rate-limited, precondition-failed, service-unavailable, internal,
+#               payload-too-large, upstream-failed, upstream-timeout, idempotency-key-in-flight.
+#               Delete the entries this service never answers, and the matching ProblemType value.
+#               A rule on ONE field is `validation` with a FieldError code — never a new type.
+#   status      exactly one integer, 400–599
+#   title       sentence case ("Release not found", not "Release Not Found"); fixed per type
+#   when        one sentence: the condition that produces it
+#   extensions  the Problem members this type carries ([] when none), e.g. [conflicting]
+#   client_ux   field · form · toast · page · sign-in · retry · conflict
+#   refs        optional: the REQ / DEC / ADR ids that ask for it
+
+problems:
+  - type: /problems/validation
+    status: 422
+    title: Validation failed
+    when: One or more fields break a rule; each is named in errors[] with a FieldError code.
+    extensions: [errors]
+    client_ux: field
+
+  - type: /problems/unauthenticated
+    status: 401
+    title: Not signed in
+    when: The request carries no valid session or token.
+    extensions: []
+    client_ux: sign-in
+
+  - type: /problems/malformed-request
+    status: 400
+    title: Malformed request
+    when: The request cannot be parsed, or its cursor is invalid, expired or from another list.
+    extensions: []
+    client_ux: toast
+
+  - type: /problems/<resource>-forbidden
+    status: 403
+    title: Not allowed
+    when: <The caller is signed in and may not act on this record.>
+    extensions: []
+    client_ux: page
+
+  - type: /problems/<resource>-not-found
+    status: 404
+    title: <Resource> not found
+    when: <The record does not exist, or the caller may not see it.>
+    extensions: []
+    client_ux: page
+    refs: [<REQ-NNN>]
+
+  - type: /problems/precondition-failed
+    status: 412
+    title: Precondition failed
+    when: The If-Match ETag no longer matches; the record changed since it was read.
+    extensions: []
+    client_ux: conflict
+
+  - type: /problems/idempotency-key-in-flight
+    status: 409
+    title: Request still running
+    when: A request with the same Idempotency-Key is still being processed; retry after it ends.
+    extensions: []
+    client_ux: retry
+
+  - type: /problems/payload-too-large
+    status: 413
+    title: Request too large
+    when: The body is over the operation's x-max-body-kb.
+    extensions: []
+    client_ux: form
+
+  - type: /problems/rate-limited
+    status: 429
+    title: Too many requests
+    when: The caller passed the rate limit for this endpoint class; Retry-After says when to retry.
+    extensions: []
+    client_ux: retry
+
+  - type: /problems/internal
+    status: 500
+    title: Internal error
+    when: Something failed on the server; the trace id is logged and returned.
+    extensions: []
+    client_ux: toast
+
+  - type: /problems/upstream-failed
+    status: 502
+    title: A service we depend on failed
+    when: A dependency in the operation's x-downstream answered with an error; Retry-After says when to retry.
+    extensions: []
+    client_ux: retry
+
+  - type: /problems/service-unavailable
+    status: 503
+    title: Service unavailable
+    when: A dependency is down or this service is shedding load; Retry-After says when to retry.
+    extensions: []
+    client_ux: retry
+
+  - type: /problems/upstream-timeout
+    status: 504
+    title: A service we depend on timed out
+    when: A dependency did not answer within its timeout; Retry-After says when to retry.
+    extensions: []
+    client_ux: retry

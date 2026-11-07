@@ -1,0 +1,11 @@
+# Pattern obligations for demo (DEV-CONTRACTS §13.3). Single quotes keep a regex backslash literal.
+obligations:
+  - id: PO-001
+    rule: every dialog with inputs uses the discard guard
+    files: [web/src/**/*.tsx]
+    exclude: ["**/*.test.tsx", web/src/components/DiscardGuard.tsx]
+    match: ['<Dialog\b']
+    when: ['<Input\b', "<Textarea\\b"]
+    require:
+      - useDiscardGuard
+      - '<DiscardBar\b'

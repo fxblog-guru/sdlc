@@ -1,0 +1,37 @@
+diff --git a/web/vitest.config.ts b/web/vitest.config.ts
+--- a/web/vitest.config.ts
++++ b/web/vitest.config.ts
+@@ -4,3 +4,3 @@ export default defineConfig({
+   test: {
+-    testTimeout: 5000,
++    testTimeout: 30000,
+   },
+diff --git a/web/src/features/Dialog.test.tsx b/web/src/features/Dialog.test.tsx
+--- a/web/src/features/Dialog.test.tsx
++++ b/web/src/features/Dialog.test.tsx
+@@ -10,2 +10,4 @@ describe('dialog', () => {
+   it('saves', async () => {
++    test.setTimeout(20_000);
++    // slow-test: flaky
++    await save.retry(3);
+   });
+diff --git a/internal/job/service_test.go b/internal/job/service_test.go
+--- a/internal/job/service_test.go
++++ b/internal/job/service_test.go
+@@ -1,2 +1,3 @@
+ package job
++//go:generate go test -timeout 10m ./...
+ import "testing"
+diff --git a/e2e/playwright.config.ts b/e2e/playwright.config.ts
+--- a/e2e/playwright.config.ts
++++ b/e2e/playwright.config.ts
+@@ -2,2 +2,2 @@
+-  retries: 0,
++  retries: 2,
+diff --git a/tests/test_api.py b/tests/test_api.py
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -3,2 +3,3 @@
+
++@pytest.mark.flaky(reruns=2)
+ def test_list():

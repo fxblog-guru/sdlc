@@ -1,0 +1,1 @@
+{ "name": "kit-valid", "private": true, "dependencies": { "class-variance-authority": "0.7.1", "@radix-ui/react-dropdown-menu": "2.1.16", "@radix-ui/react-slot": "1.2.3", "@tanstack/react-table": "8.21.3" } }

@@ -1,0 +1,254 @@
+# The §13.11 API style as a Spectral ruleset (DEV-CONTRACTS §13.1, §13.11).
+#
+#   npx @stoplight/spectral-cli lint <root>/api/<slug>/openapi.yaml --ruleset <root>/ci/spectral.yaml
+#
+# <root>/scripts/api-style-check.mjs is the same rules with no dependency, plus the two Spectral
+# cannot express without custom functions: one action style across the contract, and a toggle
+# written as POST + DELETE. Severities match the checker: error = E108–E111, warn = W103–W104,
+# and for the §13.12 rules below error = E121–E133, warn = W127–W131.
+extends: [[spectral:oas, recommended]]
+
+rules:
+  sdlc-x-idempotency:
+    description: Every non-GET declares x-idempotency (E108).
+    message: '{{path}}: x-idempotency must be `required` or `exempt:<reason>`'
+    severity: error
+    given: $.paths[*][post,put,patch,delete]
+    then:
+      - field: x-idempotency
+        function: truthy
+      - field: x-idempotency
+        function: pattern
+        functionOptions: { match: '^(required|exempt:\s*\S.*)$' }
+
+  sdlc-x-concurrency:
+    description: Every non-GET declares x-concurrency (E109).
+    message: '{{path}}: x-concurrency must be `if-match`, `lww:ADR-NNN` or `none:<reason>`'
+    severity: error
+    given: $.paths[*][post,put,patch,delete]
+    then:
+      - field: x-concurrency
+        function: truthy
+      - field: x-concurrency
+        function: pattern
+        functionOptions: { match: '^(if-match|lww:\s*ADR-\d{3,}.*|none:\s*\S.*)$' }
+
+  sdlc-operation-id-verb:
+    description: operationIds start with a verb from the closed list (E111).
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete].operationId
+    then:
+      function: pattern
+      functionOptions:
+        match: '^(get|list|create|update|delete|set|unset|add|remove|approve|reject|cancel|archive|restore|move|start|complete|send|verify|refresh|undo|export|import|search)[A-Z]'
+
+  sdlc-create-201-location:
+    description: A create answers 201 with Location (E110).
+    severity: error
+    given: $.paths[*].post[?(@.operationId && @.operationId.match(/^create/))].responses
+    then:
+      - field: '201'
+        function: truthy
+      - field: '201.headers.Location'
+        function: truthy
+
+  sdlc-patch-is-update:
+    description: PATCH is an update and answers 200 (E110).
+    severity: error
+    given: $.paths[*].patch
+    then:
+      - field: operationId
+        function: pattern
+        functionOptions: { match: '^update[A-Z]' }
+      - field: responses.200
+        function: truthy
+
+  sdlc-delete-204:
+    description: DELETE answers 204 (E110).
+    severity: error
+    given: $.paths[*].delete.responses
+    then:
+      field: '204'
+      function: truthy
+
+  sdlc-put-state-204:
+    description: PUT sets a state and answers 204 (E110).
+    severity: error
+    given: $.paths[*].put.responses
+    then:
+      field: '204'
+      function: truthy
+
+  sdlc-boolean-filter-name:
+    description: Boolean query parameters are is_<adjective> or has_<noun> (W103).
+    severity: warn
+    given: $.paths[*][*].parameters[?(@.in == 'query' && @.schema && @.schema.type == 'boolean')].name
+    then:
+      function: pattern
+      functionOptions: { match: '^(is|has)_[a-z0-9_]+$' }
+
+  sdlc-id-param-suffix:
+    description: Id parameters are snake_case and end in _id (W103).
+    severity: warn
+    given: $.paths[*][*].parameters[?(@.in == 'path')].name
+    then:
+      function: pattern
+      functionOptions: { match: '^([a-z0-9]+_)*id$|^(key|slug|token|name)$' }
+
+  sdlc-sort-param:
+    description: The sort parameter is `sort` (W103).
+    severity: warn
+    given: $.paths[*][*].parameters[?(@.in == 'query')].name
+    then:
+      function: pattern
+      functionOptions: { notMatch: '^(order|order_by|orderBy|sort_by|sortBy)$' }
+
+  sdlc-page-size:
+    description: limit defaults to 20 and stops at 100 — edit both numbers to DEV-PROFILE `Page size` (W103).
+    severity: warn
+    given: $.paths[*][*].parameters[?(@.name == 'limit')].schema
+    then:
+      - field: default
+        function: enumeration
+        functionOptions: { values: [20] }
+      - field: maximum
+        function: enumeration
+        functionOptions: { values: [100] }
+
+  sdlc-no-dotted-action:
+    description: No file-extension action paths (`/export.pdf`) — POST /{collection}/{id}/<verb> (W103).
+    severity: warn
+    given: $.paths
+    then:
+      field: '@key'
+      function: pattern
+      functionOptions: { notMatch: '\.[a-z0-9]+$' }
+
+  sdlc-problem-json:
+    description: Every 4xx/5xx is application/problem+json.
+    severity: error
+    given: $.paths[*][*].responses[?(@property >= '400')].content
+    then:
+      field: application/json
+      function: falsy
+
+  # §13.12 — api-contract-check.mjs is the same rules with no dependency, plus the ones Spectral
+  # cannot express: example validation against the schema, secrets reaching a response through a
+  # $ref, the traffic-class lookup and the data-model index names.
+  sdlc-summary:
+    description: Every operation has a summary (E125).
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then: { field: summary, function: truthy }
+
+  sdlc-x-timeout-ms:
+    description: Every operation declares x-timeout-ms (E127).
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then: { field: x-timeout-ms, function: truthy }
+
+  sdlc-x-retry:
+    description: Every operation declares x-retry safe|with-key|never (E128).
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then:
+      field: x-retry
+      function: enumeration
+      functionOptions: { values: [safe, with-key, never] }
+
+  sdlc-x-cache:
+    description: Every GET declares x-cache none|private:<ttl>|public:<ttl> (E129).
+    severity: error
+    given: $.paths[*].get
+    then:
+      - field: x-cache
+        function: truthy
+      - field: x-cache
+        function: pattern
+        functionOptions: { match: '^(none|(private|public):\d+[smhd]?)$' }
+
+  sdlc-x-audit:
+    description: Every non-GET declares x-audit true|false (E130).
+    severity: error
+    given: $.paths[*][post,put,patch,delete]
+    then:
+      field: x-audit
+      function: schema
+      functionOptions: { schema: { type: boolean } }
+
+  sdlc-x-max-body-kb:
+    description: An operation with a body declares x-max-body-kb and a 413 (E131).
+    severity: error
+    given: $.paths[*][?(@.requestBody)]
+    then:
+      - field: x-max-body-kb
+        function: truthy
+      - field: responses.413
+        function: truthy
+
+  sdlc-deprecation-headers:
+    description: A deprecated operation answers Deprecation and Sunset (E132).
+    severity: error
+    given: $.paths[*][?(@.deprecated == true)].responses[?(@property.match(/^2/))].headers
+    then:
+      - field: Deprecation
+        function: truthy
+      - field: Sunset
+        function: truthy
+
+  sdlc-x-traffic:
+    description: Every operation names an x-traffic class (E133).
+    severity: error
+    given: $.paths[*][get,post,put,patch,delete]
+    then: { field: x-traffic, function: truthy }
+
+  sdlc-no-nullable:
+    description: Null is a type in OAS 3.1, never `nullable:` (E122).
+    severity: error
+    given: $.components.schemas..properties[*]
+    then: { field: nullable, function: falsy }
+
+  sdlc-request-body-closed:
+    description: A JSON request body is additionalProperties false (E121, OWASP API3); allOf bodies are api-contract-check's.
+    severity: error
+    given: $.paths[*][*].requestBody.content[?(@property.match(/json/))].schema
+    then:
+      function: schema
+      functionOptions:
+        schema:
+          if: { required: [properties] }
+          then: { required: [additionalProperties], properties: { additionalProperties: { const: false } } }
+
+  sdlc-security:
+    description: Every operation has a security requirement or an x-public reason (E124).
+    severity: error
+    given: $.paths[*][?(@.security && @.security.length == 0)]
+    then: { field: x-public, function: truthy }
+
+  sdlc-x-requirements:
+    description: Every operation names the REQs it serves (W131).
+    severity: warn
+    given: $.paths[*][get,post,put,patch,delete]
+    then: { field: x-requirements, function: truthy }
+
+  sdlc-429:
+    description: Every operation declares a 429 (W127).
+    severity: warn
+    given: $.paths[*][get,post,put,patch,delete].responses
+    then: { field: '429', function: truthy }
+
+  sdlc-merge-patch:
+    description: PATCH takes application/merge-patch+json (W130).
+    severity: warn
+    given: $.paths[*].patch.requestBody.content
+    then: { field: application/merge-patch+json, function: truthy }
+
+  sdlc-info-policies:
+    description: info states compression, CORS, security headers and the enum policy (W129).
+    severity: warn
+    given: $.info
+    then:
+      - { field: x-compression, function: truthy }
+      - { field: x-cors, function: truthy }
+      - { field: x-security-headers, function: truthy }
+      - { field: x-enum-policy, function: truthy }

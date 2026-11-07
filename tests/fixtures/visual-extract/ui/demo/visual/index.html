@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Demo visual</title>
+<style>
+body { margin: 0; font-family: var(--font-sans); }
+.screen { display: none; }
+.screen.on { display: block; }
+.site-head { display: flex; gap: var(--space-4); }
+.hero h1 { font-size: var(--type-h1-size); }
+.card { border-radius: var(--radius-md); }
+.card .chip { padding: var(--space-1); }
+.post-body { max-width: 68ch; }
+[data-skin="sakura"] .hero { background: var(--color-bg-subtle); }
+[data-skin="neon"] .hero { background: var(--color-bg); }
+.unused-thing { color: var(--color-text); }
+@media (max-width: 767px) { .site-head { flex-direction: column; } .post-body { max-width: none; } }
+.spinner { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fade { to { opacity: 0; } }
+</style>
+</head>
+<body>
+<section class="screen" id="s-home-sakura" data-kind="home" data-skin="sakura" data-mode="light"></section>
+<section class="screen" id="s-post-sakura" data-kind="post" data-skin="sakura" data-mode="light"></section>
+<section class="screen" id="s-broken" data-kind="broken" data-mode="light"></section>
+<script>
+'use strict';
+const ic = (id) => `<svg class="icon"><use href="#i-${id}"/></svg>`;
+const POSTS = [{ t: 'One', c: 'news' }, { t: 'Two', c: 'news' }];
+// The chip a card carries; braces in strings must not end it: '{' "}" `}`
+function chip(c) {
+  return `<span class="chip">${ic('tag')}${c}</span>`;
+}
+function card(p) {
+  return `<article class="card"><h3>${p.t}</h3>${chip(p.c)}</article>`;
+}
+function siteHeader(skin) {
+  return `<header class="site-head" data-skin="${skin}">${ic('menu')}<a href="#post">post</a></header>`;
+}
+function home(el) {
+  el.innerHTML = `${siteHeader(el.dataset.skin)}<main><section class="hero"><h1>Hello</h1></section>${POSTS.map((p) => card(p)).join('')}</main>`;
+}
+function post(el) {
+  el.innerHTML = `${siteHeader(el.dataset.skin)}<main class="post-body"><div class="spinner"></div></main>`;
+}
+const RENDER = { home, post, broken: missingRenderer, 'home-alt': (el) => { home(el); } };
+function route() {
+  const on = document.querySelector('.screen');
+  RENDER[on.dataset.kind](on);
+}
+route();
+</script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+# ops/compose.prod.yaml — what runs on a staging or production host. ops/deploy.sh copies it to
+# /srv/app/compose.yaml and sets IMAGE and TAG (the commit SHA the pipeline built and published).
+# Secrets stay on the host in /srv/app/.env; ops/config/<env>.env.example lists the keys.
+# A product with two deployables (web-api-ts) has a `web` and an `api` service, each its own image
+# at the same TAG, and runs its migrations from the api image before the api starts.
+services:
+  app:
+    image: ${IMAGE:?set by ops/deploy.sh}:${TAG:?set by ops/deploy.sh}
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8080:8080"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true

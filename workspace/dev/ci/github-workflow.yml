@@ -1,0 +1,126 @@
+# Agentic SDLC — the contract checks, CI-side.
+#
+# Copy to .github/workflows/sdlc.yml.
+#
+# These jobs run exactly what a developer runs locally. That is the point: a CI job that checks
+# something the local tooling does not is a rule people meet for the first time on a red pipeline,
+# and a local check CI does not enforce is a suggestion. One implementation, two places it runs.
+#
+# Nothing here judges quality. The linter checks syntax and contract (DEV-CONTRACTS §11); whether
+# an artifact is any good is a gate reviewer's job, and a reviewer is a model call, not a CI step.
+
+name: sdlc
+
+on:
+  pull_request:
+    paths: ['.sdlc/**', 'dev/**']
+  push:
+    branches: [main]
+    paths: ['.sdlc/**', 'dev/**']
+
+# The SDLC root (DEV-CONTRACTS §2): `.sdlc` for a new project, `dev` for one installed before 1.6.0.
+# migrate-root.mjs rewrites this line when it moves the root.
+env:
+  SDLC_ROOT: .sdlc
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # commit-lint reads the pull request's whole range
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # The gate machinery is dependency-free by design - no install step, nothing to pin, nothing
+      # to audit. If that ever stops being true, this comment is the thing to come back and delete.
+
+      - name: Lint the contract
+        run: node $SDLC_ROOT/scripts/lint-dev.mjs
+
+      - name: Build the derived index; it is never committed (§8)
+        run: |
+          node $SDLC_ROOT/scripts/build-state.mjs --quiet
+          if git ls-files --error-unmatch "$SDLC_ROOT/state.json" "$SDLC_ROOT/DASHBOARD.md" >/dev/null 2>&1; then
+            echo "::error::$SDLC_ROOT/state.json or $SDLC_ROOT/DASHBOARD.md is tracked — git rm --cached them (§8)"
+            exit 1
+          fi
+
+      - name: Commits and branch follow §18.1
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags origin "${{ github.base_ref }}"
+          node $SDLC_ROOT/scripts/commit-lint.mjs --range "origin/${{ github.base_ref }}..HEAD" --no-size
+          node $SDLC_ROOT/scripts/commit-lint.mjs --branch "${{ github.head_ref }}"
+
+      - name: PR scan — the mechanical half of /sdlc-review-pr (fails on BLOCKER only)
+        if: github.event_name == 'pull_request'
+        run: node $SDLC_ROOT/scripts/pr-scan.mjs --root $SDLC_ROOT --base "origin/${{ github.base_ref }}" --head HEAD --fail-on BLOCKER
+
+      - name: A DB or API change states its rollout and rollback (§7, §13.4)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}   # through env, never spliced into the script
+        run: node $SDLC_ROOT/scripts/deploy-plan-check.mjs --root $SDLC_ROOT --base "origin/$BASE_REF" --head HEAD
+
+      - name: The G6 skeleton exists and is pinned (§18.2)
+        if: github.event_name == 'pull_request'
+        run: node $SDLC_ROOT/scripts/skeleton-check.mjs --source .
+
+      - name: The design system still holds (contrast, md rendered from json)
+        run: |
+          if [ -f "$SDLC_ROOT/docs/design-tokens.json" ]; then node $SDLC_ROOT/scripts/design-system.mjs check
+          else echo "no design system yet - /sdlc-ui will require one"; fi
+
+      # Uncomment and list your UI source directories to fail on hard-coded colours and px (§13.3).
+      # Add their paths to `on.*.paths` above as well, or the job will not run on UI-only changes.
+      # - name: No hard-coded design values
+      #   run: node $SDLC_ROOT/scripts/design-system.mjs scan app components
+
+      - name: Seeds and fixtures hold only allowed data domains (§13.6)
+        run: node $SDLC_ROOT/scripts/data-guard.mjs --source .
+
+      - name: Security ledger has nothing untriaged (§13.15)
+        if: hashFiles(format('{0}/security/findings.md', env.SDLC_ROOT)) != ''
+        run: node $SDLC_ROOT/scripts/security-scan.mjs check --root $SDLC_ROOT
+
+      # The §13.11 catalogues against the code; set SDLC_SLUG (and SDLC_WEB_SRC) in the job env.
+      - name: Backend catalogues (§13.11)
+        run: |
+          node $SDLC_ROOT/scripts/schema-lint.mjs ${SDLC_MIGRATIONS:+--migrations "$SDLC_MIGRATIONS"}
+          node $SDLC_ROOT/scripts/conventions-check.mjs --source .
+          if [ -n "$SDLC_SLUG" ]; then
+            node $SDLC_ROOT/scripts/problems-check.mjs "$SDLC_SLUG" --source . ${SDLC_WEB_SRC:+--client $SDLC_WEB_SRC}
+            node $SDLC_ROOT/scripts/api-style-check.mjs "$SDLC_SLUG"
+            node $SDLC_ROOT/scripts/api-contract-check.mjs "$SDLC_SLUG"
+            node $SDLC_ROOT/scripts/limits-check.mjs "$SDLC_SLUG" --source . ${SDLC_WEB_SRC:+--web $SDLC_WEB_SRC}
+            node $SDLC_ROOT/scripts/obs-check.mjs "$SDLC_SLUG" --source .
+          fi
+
+      # The ZAP passive baseline against a deployed preview (§13.6) — add a job once one exists:
+      #   dast-baseline:
+      #     runs-on: ubuntu-latest
+      #     steps:
+      #       - uses: zaproxy/action-baseline@v0.14.0
+      #         with: { target: "${{ vars.SDLC_PREVIEW_URL }}" }
+
+      - name: The board
+        run: node $SDLC_ROOT/scripts/status.mjs || true
+
+      - name: No gate is blocked or awaiting changes
+        if: github.event_name == 'pull_request'
+        run: |
+          node -e "
+            const s = require('./' + process.env.SDLC_ROOT + '/state.json');
+            const bad = [];
+            for (const i of s.initiatives ?? []) {
+              for (const st of i.stages ?? []) {
+                if (st.state === 'BLOCKED' || st.state === 'CHANGES_REQUESTED') {
+                  bad.push(i.slug + ' ' + st.gate + ' ' + st.state);
+                }
+              }
+            }
+            if (bad.length) { console.error('gates not clear:\n  ' + bad.join('\n  ')); process.exit(1); }
+            console.log('all gates clear');
+          "

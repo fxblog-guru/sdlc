@@ -1,0 +1,384 @@
+openapi: 3.1.0
+info:
+  title: Demo
+  version: 1.0.0
+  x-enum-policy: extensible
+  x-compression: gzip and br above 1 KB
+  x-cors: same origin only; no Access-Control-Allow-Origin
+  x-security-headers: HSTS, nosniff, frame-ancestors none, Referrer-Policy no-referrer
+  x-traffic-classes:
+    read: { rps: 50, peak_factor: 3, concurrency: 40, rate_limit: 300/min per account }
+    write: { rps: 5, peak_factor: 4, concurrency: 10, rate_limit: 60/min per account }
+security:
+  - bearer: []
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Liveness.
+      security: []
+      x-public: a load balancer probe, no data
+      x-requirements: [REQ-001]
+      x-traffic: read
+      x-perf: { p95_ms: 20, max_queries: 0, max_payload_kb: 1 }
+      x-timeout-ms: 200
+      x-retry: safe
+      x-cache: none
+      x-query: { shape: none, indexes: [] }
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          description: Up.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [status]
+                properties:
+                  status: { type: string, enum: [ok] }
+              example: { status: ok }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /releases:
+    get:
+      operationId: listReleases
+      summary: A page of releases, newest first.
+      x-requirements: [REQ-010]
+      x-traffic: read
+      x-perf: { p95_ms: 300, max_queries: 2, max_payload_kb: 64 }
+      x-timeout-ms: 1000
+      x-retry: safe
+      x-cache: private:30
+      x-query: { shape: keyset on (created_at desc, id desc) over release, indexes: [release_created_at_id_idx] }
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+      responses:
+        '200':
+          description: A page.
+          headers:
+            Cache-Control: { $ref: '#/components/headers/CacheControl' }
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [data, page]
+                properties:
+                  data:
+                    type: array
+                    maxItems: 100
+                    items: { $ref: '#/components/schemas/Release' }
+                  page: { $ref: '#/components/schemas/PageInfo' }
+              example:
+                data:
+                  - { id: rel_1, name: Spring, status: draft, price_minor: 1500, currency: EUR, notes: null, created_at: '2026-10-01T09:00:00Z' }
+                page: { limit: 20, has_more: false, next_cursor: null }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    post:
+      operationId: createRelease
+      summary: Create a release.
+      x-requirements: [REQ-011]
+      x-traffic: write
+      x-perf: { p95_ms: 300, max_queries: 3, max_payload_kb: 8 }
+      x-timeout-ms: 1500
+      x-retry: with-key
+      x-idempotency: required
+      x-concurrency: none:a new record has no prior version
+      x-audit: true
+      x-max-body-kb: 16
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReleaseCreate' }
+            example: { name: Spring, price_minor: 1500, currency: EUR }
+      responses:
+        '201':
+          description: Created.
+          headers:
+            Location: { schema: { type: string, maxLength: 256 } }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Release' }
+              example: { id: rel_1, name: Spring, status: draft, price_minor: 1500, currency: EUR, notes: null, created_at: '2026-10-01T09:00:00Z' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /releases/{release_id}:
+    parameters:
+      - $ref: '#/components/parameters/ReleaseId'
+    get:
+      operationId: getRelease
+      summary: One release.
+      x-requirements: [REQ-010]
+      x-traffic: read
+      x-perf: { p95_ms: 150, max_queries: 1, max_payload_kb: 8 }
+      x-timeout-ms: 800
+      x-retry: safe
+      x-cache: private:0
+      x-query: { shape: one row by primary key, indexes: [release_pk] }
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: The release.
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+            Cache-Control: { $ref: '#/components/headers/CacheControl' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Release' }
+              example: { id: rel_1, name: Spring, status: draft, price_minor: 1500, currency: EUR, notes: null, created_at: '2026-10-01T09:00:00Z' }
+        '304': { description: Not modified. }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    patch:
+      operationId: updateRelease
+      summary: Change a release's name or notes.
+      x-requirements: [REQ-012]
+      x-traffic: write
+      x-perf: { p95_ms: 300, max_queries: 3, max_payload_kb: 8 }
+      x-timeout-ms: 1500
+      x-retry: safe
+      x-idempotency: exempt:a PATCH under If-Match fails 412 on a repeat
+      x-concurrency: if-match
+      x-audit: false
+      x-max-body-kb: 16
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema: { $ref: '#/components/schemas/ReleaseUpdate' }
+            example: { notes: null }
+      responses:
+        '200':
+          description: Updated.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Release' }
+              example: { id: rel_1, name: Spring, status: draft, price_minor: 1500, currency: EUR, notes: null, created_at: '2026-10-01T09:00:00Z' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+  /releases/{release_id}/send:
+    parameters:
+      - $ref: '#/components/parameters/ReleaseId'
+    post:
+      operationId: sendRelease
+      summary: Send a release to the old catalogue.
+      deprecated: true
+      x-requirements: [REQ-013]
+      x-traffic: write
+      x-perf: { p95_ms: 900, max_queries: 2, max_payload_kb: 4 }
+      x-timeout-ms: 2000
+      x-retry: never
+      x-idempotency: exempt:a second send is refused 409 by the catalogue
+      x-concurrency: none:the catalogue owns the state
+      x-audit: true
+      x-downstream: [legacy-catalogue]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+      responses:
+        '200':
+          description: Sent.
+          headers:
+            Deprecation: { $ref: '#/components/headers/Deprecation' }
+            Sunset: { $ref: '#/components/headers/Sunset' }
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [sent_at]
+                properties:
+                  sent_at: { type: string, format: date-time }
+              example: { sent_at: '2026-10-01T09:00:00Z' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '502': { $ref: '#/components/responses/UpstreamFailed' }
+        '504': { $ref: '#/components/responses/UpstreamTimeout' }
+components:
+  securitySchemes:
+    bearer: { type: http, scheme: bearer }
+  parameters:
+    RequestId:
+      name: X-Request-Id
+      in: header
+      schema: { type: string, maxLength: 128 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      schema: { type: string, minLength: 1, maxLength: 255 }
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      schema: { type: string, maxLength: 128 }
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      schema: { type: string, maxLength: 128 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Cursor:
+      name: cursor
+      in: query
+      schema: { type: string, maxLength: 512 }
+    ReleaseId:
+      name: release_id
+      in: path
+      required: true
+      schema: { type: string, maxLength: 64 }
+  headers:
+    ETag: { schema: { type: string, maxLength: 128 } }
+    CacheControl: { schema: { type: string, maxLength: 128 } }
+    RetryAfter: { schema: { type: integer, minimum: 0, maximum: 86400 } }
+    Deprecation: { schema: { type: string, maxLength: 64 } }
+    Sunset: { schema: { type: string, maxLength: 64 } }
+  responses:
+    BadRequest:
+      description: Malformed.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/malformed-request, title: Malformed request, status: 400 }
+    NotFound:
+      description: Not found.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/release-not-found, title: Release not found, status: 404 }
+    Conflict:
+      description: In flight.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/idempotency-key-in-flight, title: Request still running, status: 409 }
+    PreconditionFailed:
+      description: Stale ETag.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/precondition-failed, title: Precondition failed, status: 412 }
+    PayloadTooLarge:
+      description: Body too large.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/payload-too-large, title: Request too large, status: 413 }
+    Unprocessable:
+      description: Invalid.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/validation, title: Validation failed, status: 422, errors: [{ field: name, code: too_long, limit: 100 }] }
+    TooManyRequests:
+      description: Rate limited.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/rate-limited, title: Too many requests, status: 429 }
+    UpstreamFailed:
+      description: The catalogue failed.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/upstream-failed, title: A service we depend on failed, status: 502 }
+    UpstreamTimeout:
+      description: The catalogue timed out.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/upstream-timeout, title: A service we depend on timed out, status: 504 }
+  schemas:
+    ProblemType:
+      type: string
+      enum:
+        - /problems/malformed-request
+        - /problems/validation
+        - /problems/release-not-found
+        - /problems/idempotency-key-in-flight
+        - /problems/precondition-failed
+        - /problems/payload-too-large
+        - /problems/rate-limited
+        - /problems/upstream-failed
+        - /problems/upstream-timeout
+    Problem:
+      type: object
+      additionalProperties: false
+      required: [type, title, status]
+      properties:
+        type: { $ref: '#/components/schemas/ProblemType' }
+        title: { type: string, maxLength: 200 }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        detail: { type: string, maxLength: 2000 }
+        trace_id: { type: string, maxLength: 64 }
+        errors:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/FieldError' }
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, code]
+      properties:
+        field: { type: string, maxLength: 200 }
+        code: { type: string, enum: [required, too_long, invalid_format] }
+        limit: { type: [integer, 'null'], minimum: 0, maximum: 1000000 }
+    PageInfo:
+      type: object
+      additionalProperties: false
+      required: [limit, has_more, next_cursor]
+      properties:
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        has_more: { type: boolean }
+        next_cursor: { type: [string, 'null'], maxLength: 512 }
+    Release:
+      type: object
+      additionalProperties: false
+      required: [id, name, status, price_minor, currency, notes, created_at]
+      properties:
+        id: { type: string, maxLength: 64, readOnly: true }
+        name: { type: string, minLength: 1, maxLength: 100 }
+        status: { type: string, enum: [draft, live] }
+        price_minor: { type: integer, minimum: 0, maximum: 100000000 }
+        currency: { type: string, pattern: '^[A-Z]{3}$' }
+        notes: { type: [string, 'null'], maxLength: 10000, description: Null when there are none. }
+        created_at: { type: string, format: date-time, readOnly: true }
+    ReleaseCreate:
+      type: object
+      additionalProperties: false
+      required: [name, price_minor, currency]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        price_minor: { type: integer, minimum: 0, maximum: 100000000 }
+        currency: { type: string, pattern: '^[A-Z]{3}$' }
+        notes: { type: [string, 'null'], maxLength: 10000, default: null }
+        owner_password: { type: string, maxLength: 128, writeOnly: true, description: The release's lock code; never returned. }
+    ReleaseUpdate:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        notes: { type: [string, 'null'], maxLength: 10000, description: null clears; absent keeps. }

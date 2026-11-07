@@ -1,0 +1,32 @@
+provider: aws
+title: checkout-discount — production
+env: production
+
+groups:
+  - { id: cloud, kind: root }
+  - { id: region, kind: region, in: cloud, label: eu-west-1 }
+  - { id: net, kind: network, in: region, label: Shop VPC, cidr: 10.20.0.0/16 }
+  - { id: public, kind: public-subnet, in: net, label: Public subnet }
+  - { id: app, kind: subnet, in: net, label: App subnet }
+  - { id: data, kind: subnet, in: net, label: Data subnet }
+
+nodes:
+  - { id: shoppers, kind: users, label: Shoppers }
+  - { id: edge, kind: cdn, in: region, label: Storefront edge }
+  - { id: waf, kind: waf, in: region, label: Edge WAF }
+  - { id: lb, kind: load-balancer, in: public, label: Public LB }
+  - { id: pricing, kind: container-service, in: app, label: Pricing API, count: 2 }
+  - { id: orders, kind: sql-database, in: data, label: Orders DB }
+  - { id: limits, kind: cache, in: data, label: Code-attempt limiter }
+  - { id: secrets, kind: secrets, in: region, label: App secrets }
+  - { id: metrics, kind: monitoring, in: region, label: SLO-001 alerts }
+
+edges:
+  - [shoppers, edge, "HTTPS 443"]
+  - [edge, waf, "inspect"]
+  - [waf, lb, "HTTPS 443"]
+  - [lb, pricing, "HTTP 8080"]
+  - [pricing, orders, "PostgreSQL 5432"]
+  - [pricing, limits, "Redis 6379"]
+  - [pricing, secrets, "read at start"]
+  - { from: pricing, to: metrics, label: "OTLP", async: true }

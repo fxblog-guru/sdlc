@@ -1,0 +1,363 @@
+{
+  "schema": 2,
+  "id": "carbon-enterprise",
+  "name": "Carbon Enterprise",
+  "summary": "IBM Carbon's White and Gray 100 themes: flat, square corners, IBM Plex, a strict 8px grid and blue 60 as the one accent. Enterprise software that has to be trusted.",
+  "best_for": [
+    "enterprise and regulated products: finance, insurance, government, healthcare admin",
+    "data-heavy desktop work where structure matters more than warmth",
+    "teams that want a complete, documented system to follow to the letter"
+  ],
+  "avoid_for": [
+    "consumer products — it reads as corporate",
+    "products that must not resemble IBM software"
+  ],
+  "shell": "topbar-sidebar",
+  "density": "comfortable",
+  "provenance": {
+    "source": "IBM Carbon — @carbon/themes 11.82.0, themes white and g100 (npm, read 2026-09-30)",
+    "license": "Apache-2.0",
+    "url": "https://github.com/carbon-design-system/carbon",
+    "adapted": [
+      "dark primary is link-primary #78a9ff with a dark foreground: Carbon keeps blue 60 buttons in g100, but one colour serves buttons and links here and #0f62fe is 3.6:1 on #161616",
+      "warning uses yellow 60 #8e6a00 / yellow 30 #f1c21b: Carbon's support-warning #f1c21b is 1.6:1 on white and relies on a dark icon outline",
+      "primary-hover #0050e6 is Carbon's button-primary-hover; danger-fg is text-on-color",
+      "type roles: heading-04 28px became h2 24px so every heading step keeps the 1.2 scale ratio this schema enforces"
+    ]
+  },
+  "kit": {
+    "react": {
+      "name": "shadcn/ui (Radix + Tailwind), themed with these tokens",
+      "notes": "@carbon/react (Apache-2.0) is the native kit if you want Carbon's components too — then these tokens are already inside it"
+    },
+    "nextjs": {
+      "name": "shadcn/ui (Radix + Tailwind), themed with these tokens",
+      "notes": "@carbon/react works in client components; its UI Shell maps to shell.topbar-sidebar"
+    }
+  },
+  "kit_base": "radix-themes",
+  "font": {
+    "sans": "\"IBM Plex Sans\", \"Helvetica Neue\", Arial, sans-serif",
+    "mono": "\"IBM Plex Mono\", Menlo, \"DejaVu Sans Mono\", Courier, monospace"
+  },
+  "color": {
+    "light": {
+      "bg": "#ffffff",
+      "surface": "#f4f4f4",
+      "surface-2": "#e0e0e0",
+      "border": "#c6c6c6",
+      "border-strong": "#8d8d8d",
+      "text": "#161616",
+      "text-muted": "#525252",
+      "primary": "#0f62fe",
+      "primary-hover": "#0050e6",
+      "primary-fg": "#ffffff",
+      "success": "#24a148",
+      "warning": "#8e6a00",
+      "danger": "#da1e28",
+      "danger-fg": "#ffffff",
+      "info": "#0043ce",
+      "focus": "#0f62fe"
+    },
+    "dark": {
+      "bg": "#161616",
+      "surface": "#262626",
+      "surface-2": "#393939",
+      "border": "#525252",
+      "border-strong": "#8d8d8d",
+      "text": "#f4f4f4",
+      "text-muted": "#c6c6c6",
+      "primary": "#78a9ff",
+      "primary-hover": "#a6c8ff",
+      "primary-fg": "#161616",
+      "success": "#42be65",
+      "warning": "#f1c21b",
+      "danger": "#fa4d56",
+      "danger-fg": "#161616",
+      "info": "#4589ff",
+      "focus": "#ffffff"
+    }
+  },
+  "type": {
+    "body": "sm",
+    "scale": {
+      "xs": [
+        12,
+        1.34,
+        "label-01, helper text"
+      ],
+      "sm": [
+        14,
+        1.43,
+        "body-01, table cells, inputs"
+      ],
+      "md": [
+        16,
+        1.5,
+        "body-02"
+      ],
+      "lg": [
+        20,
+        1.4,
+        "heading-03"
+      ],
+      "xl": [
+        28,
+        1.29,
+        "heading-04"
+      ],
+      "2xl": [
+        32,
+        1.25,
+        "heading-05, page title"
+      ],
+      "3xl": [
+        42,
+        1.19,
+        "heading-06, display"
+      ]
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 600
+    },
+    "ratio": 1.2,
+    "roles": {
+      "display": {
+        "size": 42,
+        "line": 1.1,
+        "weight": 700,
+        "tracking": -0.02
+      },
+      "h1": {
+        "size": 32,
+        "line": 1.2,
+        "weight": 600,
+        "tracking": -0.015
+      },
+      "h2": {
+        "size": 24,
+        "line": 1.25,
+        "weight": 600,
+        "tracking": -0.01
+      },
+      "h3": {
+        "size": 20,
+        "line": 1.35,
+        "weight": 600,
+        "tracking": 0
+      },
+      "body": {
+        "size": 14,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0
+      },
+      "small": {
+        "size": 12,
+        "line": 1.45,
+        "weight": 400,
+        "tracking": 0.005
+      },
+      "mono": {
+        "size": 14,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "font": "mono"
+      },
+      "tabular": {
+        "size": 14,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "numeric": "tabular-nums"
+      }
+    }
+  },
+  "space": [
+    0,
+    2,
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    40,
+    48,
+    64
+  ],
+  "radius": {
+    "none": 0,
+    "sm": 0,
+    "md": 0,
+    "lg": 0,
+    "xl": 0,
+    "full": 9999
+  },
+  "elevation": {
+    "light": {
+      "0": "none",
+      "1": "none",
+      "2": "0 2px 6px rgb(0 0 0 / 0.3)",
+      "3": "0 2px 6px rgb(0 0 0 / 0.3)"
+    },
+    "dark": {
+      "0": "none",
+      "1": "none",
+      "2": "0 2px 6px rgb(0 0 0 / 0.8)",
+      "3": "0 2px 6px rgb(0 0 0 / 0.8)"
+    }
+  },
+  "motion": {
+    "fast": "110ms",
+    "base": "150ms",
+    "slow": "240ms",
+    "easing": "cubic-bezier(0.2, 0, 0.38, 0.9)"
+  },
+  "breakpoints": {
+    "sm": 320,
+    "md": 672,
+    "lg": 1056,
+    "xl": 1312,
+    "2xl": 1584
+  },
+  "control": {
+    "height-sm": 32,
+    "height-md": 40,
+    "height-lg": 48,
+    "row-height": 48,
+    "target-min": 24,
+    "sidebar-width": 256,
+    "content-max": 1584
+  },
+  "neutral": {
+    "50": "#f4f4f4",
+    "100": "#e0e0e0",
+    "200": "#c6c6c6",
+    "300": "#a8a8a8",
+    "400": "#8d8d8d",
+    "500": "#6f6f6f",
+    "600": "#525252",
+    "700": "#393939",
+    "800": "#262626",
+    "900": "#161616",
+    "950": "#0b0b0b"
+  },
+  "dataviz": {
+    "light": [
+      "#2a78d6",
+      "#eb6834",
+      "#1baf7a",
+      "#eda100",
+      "#e87ba4",
+      "#008300",
+      "#6250d6",
+      "#e34948"
+    ],
+    "dark": [
+      "#3987e5",
+      "#d95926",
+      "#199e70",
+      "#c98500",
+      "#d55181",
+      "#008300",
+      "#9085e9",
+      "#e66767"
+    ]
+  },
+  "icon": {
+    "set": "@carbon/icons (or lucide)",
+    "stroke": 1.5,
+    "sizes": {
+      "sm": 16,
+      "md": 20,
+      "lg": 24
+    }
+  },
+  "density_modes": {
+    "comfortable": {
+      "row-height": 48,
+      "control-height": 40,
+      "cell-pad-x": 16,
+      "cell-pad-y": 12
+    },
+    "compact": {
+      "row-height": 32,
+      "control-height": 32,
+      "cell-pad-x": 16,
+      "cell-pad-y": 6
+    }
+  },
+  "extra_roles": {
+    "tint-success": {
+      "light": "#f2f9f4",
+      "dark": "#2b4131",
+      "use": "success badge, notice and row fill"
+    },
+    "tint-warning": {
+      "light": "#f8f6f0",
+      "dark": "#4b4224",
+      "use": "warning badge, notice and row fill"
+    },
+    "tint-danger": {
+      "light": "#fdf2f2",
+      "dark": "#4c2d2f",
+      "use": "danger badge, notice and row fill"
+    },
+    "tint-info": {
+      "light": "#f0f4fc",
+      "dark": "#2c384d",
+      "use": "info badge, notice and row fill"
+    }
+  },
+  "extra_contrast_pairs": [
+    {
+      "fg": "text",
+      "bg": "tint-success",
+      "kind": "text"
+    },
+    {
+      "fg": "success",
+      "bg": "tint-success",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-warning",
+      "kind": "text"
+    },
+    {
+      "fg": "warning",
+      "bg": "tint-warning",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-danger",
+      "kind": "text"
+    },
+    {
+      "fg": "danger",
+      "bg": "tint-danger",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-info",
+      "kind": "text"
+    },
+    {
+      "fg": "info",
+      "bg": "tint-info",
+      "kind": "non-text"
+    }
+  ],
+  "scrim": {
+    "light": "rgba(9, 9, 11, 0.45)",
+    "dark": "rgba(0, 0, 0, 0.6)"
+  }
+}

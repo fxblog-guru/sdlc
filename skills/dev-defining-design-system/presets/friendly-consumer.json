@@ -1,0 +1,352 @@
+{
+  "schema": 2,
+  "id": "friendly-consumer",
+  "name": "Friendly Consumer",
+  "summary": "Warm and approachable. Stone neutrals, violet accent, 16px body, 12px corners, soft shadows, bigger targets. For people who did not choose to learn your product.",
+  "best_for": [
+    "consumer and SMB self-serve products",
+    "onboarding-heavy flows, booking, customer portals",
+    "audiences with mixed digital confidence"
+  ],
+  "avoid_for": [
+    "dense tabular work — pick dense-enterprise",
+    "regulated or finance products that must feel sober — pick clean-saas"
+  ],
+  "shell": "topnav",
+  "density": "spacious",
+  "kit": {
+    "react": {
+      "name": "shadcn/ui (Radix primitives + Tailwind)",
+      "notes": "copy-in components; theme via the CSS variables in tokens.css"
+    },
+    "nextjs": {
+      "name": "shadcn/ui (Radix primitives + Tailwind)",
+      "notes": "server components by default; Radix parts are client islands"
+    }
+  },
+  "kit_base": "shadcn-new-york",
+  "font": {
+    "sans": "\"Plus Jakarta Sans\", ui-sans-serif, system-ui, -apple-system, \"Segoe UI\", sans-serif",
+    "mono": "\"JetBrains Mono\", ui-monospace, SFMono-Regular, Menlo, monospace"
+  },
+  "color": {
+    "light": {
+      "bg": "#fafaf9",
+      "surface": "#ffffff",
+      "surface-2": "#f5f5f4",
+      "border": "#e7e5e4",
+      "border-strong": "#8f8a86",
+      "text": "#1c1917",
+      "text-muted": "#5c5652",
+      "primary": "#7c3aed",
+      "primary-hover": "#6d28d9",
+      "primary-fg": "#ffffff",
+      "success": "#16a34a",
+      "warning": "#d97706",
+      "danger": "#dc2626",
+      "danger-fg": "#ffffff",
+      "info": "#0284c7",
+      "focus": "#8b5cf6"
+    },
+    "dark": {
+      "bg": "#141210",
+      "surface": "#1f1c1a",
+      "surface-2": "#2a2624",
+      "border": "#2f2a27",
+      "border-strong": "#78716c",
+      "text": "#f5f5f4",
+      "text-muted": "#aaa29d",
+      "primary": "#a78bfa",
+      "primary-hover": "#c4b5fd",
+      "primary-fg": "#1e1236",
+      "success": "#4ade80",
+      "warning": "#fbbf24",
+      "danger": "#f87171",
+      "danger-fg": "#2a0808",
+      "info": "#38bdf8",
+      "focus": "#c4b5fd"
+    }
+  },
+  "type": {
+    "body": "md",
+    "scale": {
+      "xs": [
+        13,
+        1.5,
+        "meta, captions"
+      ],
+      "sm": [
+        14,
+        1.5,
+        "secondary text, helper text"
+      ],
+      "md": [
+        16,
+        1.6,
+        "body, inputs"
+      ],
+      "lg": [
+        18,
+        1.5,
+        "lead text, card titles"
+      ],
+      "xl": [
+        22,
+        1.35,
+        "section headings (h2)"
+      ],
+      "2xl": [
+        28,
+        1.25,
+        "page title (h1)"
+      ],
+      "3xl": [
+        36,
+        1.15,
+        "hero / welcome"
+      ]
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "ratio": 1.25,
+    "roles": {
+      "display": {
+        "size": 40,
+        "line": 1.1,
+        "weight": 700,
+        "tracking": -0.02
+      },
+      "h1": {
+        "size": 32,
+        "line": 1.2,
+        "weight": 600,
+        "tracking": -0.015
+      },
+      "h2": {
+        "size": 26,
+        "line": 1.25,
+        "weight": 600,
+        "tracking": -0.01
+      },
+      "h3": {
+        "size": 20,
+        "line": 1.35,
+        "weight": 600,
+        "tracking": 0
+      },
+      "body": {
+        "size": 16,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0
+      },
+      "small": {
+        "size": 13,
+        "line": 1.45,
+        "weight": 400,
+        "tracking": 0.005
+      },
+      "mono": {
+        "size": 14,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "font": "mono"
+      },
+      "tabular": {
+        "size": 16,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "numeric": "tabular-nums"
+      }
+    }
+  },
+  "space": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    40,
+    48,
+    64,
+    80
+  ],
+  "radius": {
+    "none": 0,
+    "sm": 6,
+    "md": 10,
+    "lg": 12,
+    "xl": 16,
+    "full": 9999
+  },
+  "elevation": {
+    "light": {
+      "0": "none",
+      "1": "0 1px 3px rgb(28 25 23 / 0.06)",
+      "2": "0 6px 16px rgb(28 25 23 / 0.08)",
+      "3": "0 16px 40px rgb(28 25 23 / 0.12)"
+    },
+    "dark": {
+      "0": "none",
+      "1": "0 1px 3px rgb(0 0 0 / 0.4)",
+      "2": "0 6px 16px rgb(0 0 0 / 0.5)",
+      "3": "0 16px 40px rgb(0 0 0 / 0.6)"
+    }
+  },
+  "motion": {
+    "fast": "150ms",
+    "base": "220ms",
+    "slow": "350ms",
+    "easing": "cubic-bezier(0.3, 0, 0, 1)"
+  },
+  "breakpoints": {
+    "sm": 360,
+    "md": 768,
+    "lg": 1024,
+    "xl": 1280,
+    "2xl": 1536
+  },
+  "control": {
+    "height-sm": 36,
+    "height-md": 44,
+    "height-lg": 52,
+    "row-height": 56,
+    "target-min": 44,
+    "sidebar-width": 264,
+    "content-max": 1080
+  },
+  "neutral": {
+    "50": "#fafaf9",
+    "100": "#f5f5f4",
+    "200": "#e7e5e4",
+    "300": "#d6d3d1",
+    "400": "#a8a29e",
+    "500": "#78716c",
+    "600": "#57534e",
+    "700": "#44403c",
+    "800": "#292524",
+    "900": "#1c1917",
+    "950": "#0c0a09"
+  },
+  "dataviz": {
+    "light": [
+      "#2a78d6",
+      "#eb6834",
+      "#1baf7a",
+      "#eda100",
+      "#e87ba4",
+      "#008300",
+      "#6250d6",
+      "#e34948"
+    ],
+    "dark": [
+      "#3987e5",
+      "#d95926",
+      "#199e70",
+      "#c98500",
+      "#d55181",
+      "#008300",
+      "#9085e9",
+      "#e66767"
+    ]
+  },
+  "icon": {
+    "set": "lucide",
+    "stroke": 1.75,
+    "sizes": {
+      "sm": 16,
+      "md": 18,
+      "lg": 24
+    }
+  },
+  "density_modes": {
+    "spacious": {
+      "row-height": 56,
+      "control-height": 44,
+      "cell-pad-x": 20,
+      "cell-pad-y": 16
+    },
+    "comfortable": {
+      "row-height": 48,
+      "control-height": 44,
+      "cell-pad-x": 16,
+      "cell-pad-y": 12
+    }
+  },
+  "extra_roles": {
+    "tint-success": {
+      "light": "#f8fcfa",
+      "dark": "#273f2c",
+      "use": "success badge, notice and row fill"
+    },
+    "tint-warning": {
+      "light": "#fefbf8",
+      "dark": "#47391c",
+      "use": "warning badge, notice and row fill"
+    },
+    "tint-danger": {
+      "light": "#fef8f8",
+      "dark": "#462b2a",
+      "use": "danger badge, notice and row fill"
+    },
+    "tint-info": {
+      "light": "#f7fbfd",
+      "dark": "#243942",
+      "use": "info badge, notice and row fill"
+    }
+  },
+  "extra_contrast_pairs": [
+    {
+      "fg": "text",
+      "bg": "tint-success",
+      "kind": "text"
+    },
+    {
+      "fg": "success",
+      "bg": "tint-success",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-warning",
+      "kind": "text"
+    },
+    {
+      "fg": "warning",
+      "bg": "tint-warning",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-danger",
+      "kind": "text"
+    },
+    {
+      "fg": "danger",
+      "bg": "tint-danger",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-info",
+      "kind": "text"
+    },
+    {
+      "fg": "info",
+      "bg": "tint-info",
+      "kind": "non-text"
+    }
+  ],
+  "scrim": {
+    "light": "rgba(9, 9, 11, 0.45)",
+    "dark": "rgba(0, 0, 0, 0.6)"
+  }
+}

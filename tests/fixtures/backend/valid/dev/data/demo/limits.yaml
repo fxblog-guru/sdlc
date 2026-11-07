@@ -1,0 +1,30 @@
+limits:
+  - name: release.name
+    value: 100
+    unit: chars
+    ref: REQ-010
+    match:
+      go: [release.MaxName]
+      sql: [release.name]
+      openapi: ['*.name']
+      web: [MAX_NAME]
+  - name: release.notes
+    value: 10000
+    unit: chars
+    ref: REQ-011
+    match:
+      go: [release.MaxNotes]
+      sql: [release.notes]
+      openapi: [ReleaseCreate.notes]
+  - name: release.tags
+    value: 20
+    unit: items
+    ref: DEC-002
+    match:
+      openapi: [ReleaseCreate.tags]
+  - name: page.limit
+    value: 100
+    unit: items
+    ref: DEC-001
+    match:
+      openapi: [param:limit]

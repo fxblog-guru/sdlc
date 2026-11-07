@@ -1,0 +1,308 @@
+{
+  "architect": {
+    "reviewer": "skills/dev-reviewing-design/SKILL.md",
+    "principles": "skills/dev-brainstorming-architecture/architecture-principles.md",
+    "rows": [
+      25,
+      26,
+      27,
+      28,
+      29
+    ],
+    "cases": {
+      "case-1": [
+        27
+      ],
+      "case-2": [
+        28
+      ],
+      "case-3": [
+        29
+      ],
+      "case-4": [],
+      "case-5": [
+        25
+      ],
+      "case-6": [
+        26
+      ]
+    }
+  },
+  "security": {
+    "reviewer": "skills/dev-reviewing-design/SKILL.md",
+    "principles": "skills/dev-modeling-threats/security-principles.md",
+    "rows": [
+      30,
+      31,
+      32,
+      33
+    ],
+    "cases": {
+      "case-1": [
+        32
+      ],
+      "case-2": [
+        30
+      ],
+      "case-3": [
+        33
+      ],
+      "case-4": [
+        31
+      ],
+      "case-5": []
+    }
+  },
+  "data": {
+    "reviewer": "skills/dev-reviewing-data/SKILL.md",
+    "principles": "skills/dev-modeling-data/data-principles.md",
+    "rows": [
+      28,
+      29,
+      30,
+      31,
+      32
+    ],
+    "cases": {
+      "case-1": [
+        28
+      ],
+      "case-2": [
+        29
+      ],
+      "case-3": [
+        30
+      ],
+      "case-4": [
+        31
+      ],
+      "case-5": [
+        32
+      ],
+      "case-6": []
+    }
+  },
+  "sre": {
+    "reviewer": "skills/dev-reviewing-deployment/SKILL.md",
+    "principles": "skills/dev-planning-deployment/sre-principles.md",
+    "rows": [
+      24,
+      25,
+      26,
+      27
+    ],
+    "cases": {
+      "case-1": [
+        25
+      ],
+      "case-2": [],
+      "case-3": [
+        26
+      ],
+      "case-4": [
+        24
+      ],
+      "case-5": [
+        27
+      ]
+    }
+  },
+  "pm": {
+    "reviewer": "skills/dev-reviewing-intake/SKILL.md",
+    "principles": "skills/dev-framing-problem/product-principles.md",
+    "rows": [
+      15,
+      16,
+      17
+    ],
+    "cases": {
+      "case-1": [
+        17
+      ],
+      "case-2": [
+        16
+      ],
+      "case-3": [
+        15
+      ],
+      "case-4": []
+    }
+  },
+  "ba": {
+    "reviewer": "skills/dev-reviewing-requirements/SKILL.md",
+    "principles": "skills/dev-decomposing-requirements/domain-modelling.md",
+    "rows": [
+      19,
+      20
+    ],
+    "cases": {
+      "case-1": [
+        19
+      ],
+      "case-2": [
+        20
+      ],
+      "case-3": []
+    }
+  },
+  "ux": {
+    "reviewer": "skills/dev-reviewing-ui/SKILL.md",
+    "principles": "skills/dev-specifying-ui/ux-principles.md",
+    "rows": [
+      33,
+      34
+    ],
+    "cases": {
+      "case-1": [
+        33
+      ],
+      "case-2": [
+        34
+      ],
+      "case-3": []
+    }
+  },
+  "research": {
+    "reviewer": "skills/dev-reviewing-intake/SKILL.md",
+    "principles": "skills/dev-framing-problem/user-research.md",
+    "rows": [
+      19
+    ],
+    "cases": {
+      "case-1": [
+        19
+      ],
+      "case-2": []
+    }
+  },
+  "prioritisation": {
+    "reviewer": "skills/dev-reviewing-plan/SKILL.md",
+    "principles": "skills/dev-planning-implementation/prioritisation.md",
+    "rows": [
+      25
+    ],
+    "cases": {
+      "case-1": [
+        25
+      ],
+      "case-2": []
+    }
+  },
+  "docs": {
+    "reviewer": "skills/dev-reviewing-release/SKILL.md",
+    "principles": "skills/dev-packaging-release/user-docs.md",
+    "rows": [
+      21
+    ],
+    "cases": {
+      "case-1": [
+        21
+      ],
+      "case-2": []
+    }
+  },
+  "incident": {
+    "reviewer": "skills/dev-reviewing-monitoring/SKILL.md",
+    "principles": "skills/dev-designing-observability/incident-response.md",
+    "rows": [
+      25
+    ],
+    "cases": {
+      "case-1": [
+        25
+      ],
+      "case-2": []
+    }
+  },
+  "cost": {
+    "reviewer": "skills/dev-reviewing-monitoring/SKILL.md",
+    "principles": "skills/dev-designing-observability/cost-after-release.md",
+    "rows": [
+      26
+    ],
+    "cases": {
+      "case-1": [
+        26
+      ],
+      "case-2": []
+    }
+  },
+  "cicd": {
+    "reviewer": "skills/dev-reviewing-deployment/SKILL.md",
+    "principles": "skills/dev-designing-cloud/ci-cd.md",
+    "rows": [
+      29
+    ],
+    "cases": {
+      "case-1": [
+        29
+      ],
+      "case-2": []
+    }
+  },
+  "desktop": {
+    "reviewer": "skills/dev-reviewing-release/SKILL.md",
+    "principles": "skills/dev-packaging-release/desktop.md",
+    "rows": [
+      22
+    ],
+    "cases": {
+      "case-1": [
+        22
+      ],
+      "case-2": []
+    }
+  },
+  "extension": {
+    "reviewer": "skills/dev-reviewing-release/SKILL.md",
+    "principles": "skills/dev-packaging-release/vscode-extension.md",
+    "rows": [
+      23
+    ],
+    "cases": {
+      "case-1": [
+        23
+      ],
+      "case-2": []
+    }
+  },
+  "clipack": {
+    "reviewer": "skills/dev-reviewing-release/SKILL.md",
+    "principles": "skills/dev-packaging-release/cli.md",
+    "rows": [
+      24
+    ],
+    "cases": {
+      "case-1": [
+        24
+      ],
+      "case-2": []
+    }
+  },
+  "aipack": {
+    "reviewer": "skills/dev-reviewing-release/SKILL.md",
+    "principles": "skills/dev-packaging-release/ai-app.md",
+    "rows": [
+      25
+    ],
+    "cases": {
+      "case-1": [
+        25
+      ],
+      "case-2": []
+    }
+  },
+  "mobilepack": {
+    "reviewer": "skills/dev-reviewing-release/SKILL.md",
+    "principles": "skills/dev-packaging-release/mobile.md",
+    "rows": [
+      26
+    ],
+    "cases": {
+      "case-1": [
+        26
+      ],
+      "case-2": []
+    }
+  }
+}

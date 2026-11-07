@@ -1,0 +1,69 @@
+# Agentic SDLC — an unattended run, G0 → G9, as a GitLab job (DEV-CONTRACTS §4.6).
+#
+# Include it beside gitlab-ci.yml, and start it by hand or on a schedule:
+#
+#   include:
+#     - local: .sdlc/ci/gitlab-autonomy.yml
+#
+# Run it from "Run pipeline" with SDLC_SLUG set (and SDLC_STARTED_BY: your name). The job works
+# on a branch of its own, pushes that branch, and opens a merge request whose description is the
+# run report: the gates, every decision taken on its default, and every stop. It never merges,
+# never deploys and never pushes to a protected branch. autonomy.mjs stops those, and the job
+# token should not be able to do them anyway.
+#
+# Needs: ANTHROPIC_API_KEY and a project access token GITLAB_TOKEN with api + write_repository,
+# scoped to Developer, which cannot merge to a protected branch. Mark BOTH masked and protected:
+# a failed push can print the remote URL, and only masking keeps the token out of the log.
+
+sdlc:autonomy:
+  image: node:22
+  stage: deploy
+  timeout: 3h
+  variables:
+    SDLC_ROOT: .sdlc
+    SDLC_AUTONOMY: full
+    # The run stops at the first action after either is exceeded.
+    SDLC_BUDGET_TOKENS: "4000000"
+    SDLC_BUDGET_MINUTES: "170"
+    GIT_DEPTH: 0
+  rules:
+    - if: $SDLC_SLUG && ($CI_PIPELINE_SOURCE == "web" || $CI_PIPELINE_SOURCE == "schedule")
+  before_script:
+    - test -n "$SDLC_STARTED_BY" || { echo "set SDLC_STARTED_BY to the human who turned this on"; exit 2; }
+    - npm install -g @anthropic-ai/claude-code
+    - git config user.name "$SDLC_STARTED_BY"
+    - git config user.email "${SDLC_STARTED_EMAIL:-$GITLAB_USER_EMAIL}"
+    - export RUN=$(node $SDLC_ROOT/scripts/run-id.mjs)
+    - echo "RUN=$RUN" >> run.env
+    - git switch -c "autonomy/$SDLC_SLUG-$RUN"
+    - node $SDLC_ROOT/scripts/autonomy.mjs start --run "$RUN" --by "$SDLC_STARTED_BY"
+  script:
+    # One prompt drives the ladder; the stage protocol reads SDLC_AUTONOMY and calls autonomy.mjs
+    # at every choice and every outward step. A non-zero exit is a stop, not a failure to hide.
+    - |
+      claude -p "Run the SDLC ladder for $SDLC_SLUG from its current gate through G9, one /sdlc-* stage after another, with SDLC_AUTONOMY=full, run id $RUN and --slug $SDLC_SLUG on every autonomy.mjs check. Follow dev-stage-protocol/autonomy.md. Stop at the first hard stop autonomy.mjs reports and say which." \
+        --permission-mode acceptEdits --max-turns 400 \
+        --allowedTools "Read" "Edit" "Write" "Glob" "Grep" "Task" "Bash(node $SDLC_ROOT/scripts/*)" "Bash(git status*)" "Bash(git diff*)" "Bash(git log*)" "Bash(git add *)" "Bash(git commit *)" || echo "the run ended with a stop or an error; the report says which"
+    - node $SDLC_ROOT/scripts/build-state.mjs --quiet
+    - node $SDLC_ROOT/scripts/autonomy.mjs report --run "$RUN"
+    - git add -A "$SDLC_ROOT" && git commit -m "docs(sdlc): autonomous run $SDLC_SLUG ($RUN)" || true
+    - git push "https://oauth2:${GITLAB_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git" "HEAD:autonomy/$SDLC_SLUG-$RUN"
+    - |
+      node -e '
+        const fs = require("fs");
+        const body = fs.readFileSync(`${process.env.SDLC_ROOT}/runs/${process.env.RUN}/report.md`, "utf8");
+        fs.writeFileSync("mr.json", JSON.stringify({
+          source_branch: `autonomy/${process.env.SDLC_SLUG}-${process.env.RUN}`,
+          target_branch: process.env.CI_DEFAULT_BRANCH,
+          title: `Draft: autonomous run ${process.env.SDLC_SLUG} (${process.env.RUN})`,
+          description: body,
+          remove_source_branch: false,
+        }));'
+    - >
+      curl --fail -sS -X POST -H "PRIVATE-TOKEN: $GITLAB_TOKEN" -H "Content-Type: application/json"
+      --data @mr.json "$CI_API_V4_URL/projects/$CI_PROJECT_ID/merge_requests"
+  artifacts:
+    when: always
+    paths: [$SDLC_ROOT/runs/, $SDLC_ROOT/logs/activity.jsonl, $SDLC_ROOT/state.json]
+    reports:
+      dotenv: run.env

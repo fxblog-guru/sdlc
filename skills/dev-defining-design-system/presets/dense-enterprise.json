@@ -1,0 +1,352 @@
+{
+  "schema": 2,
+  "id": "dense-enterprise",
+  "name": "Dense Enterprise",
+  "summary": "Information-dense operations UI. Slate greys, strong blue, 13px body, 32px rows, 4px corners, top bar plus sidebar. Built for people who work in tables all day.",
+  "best_for": [
+    "back-office, scheduling, dispatch, finance, admin consoles",
+    "power users on desktop who compare many rows at once",
+    "products replacing a spreadsheet"
+  ],
+  "avoid_for": [
+    "first-time or occasional users",
+    "touch-first or phone-first use — pick field-mobile"
+  ],
+  "shell": "topbar-sidebar",
+  "density": "compact",
+  "kit": {
+    "react": {
+      "name": "shadcn/ui + TanStack Table",
+      "notes": "data grid from TanStack Table (virtualised); alternative: Ant Design / MUI X Data Grid where a full grid kit is wanted"
+    },
+    "nextjs": {
+      "name": "shadcn/ui + TanStack Table",
+      "notes": "grid is a client island; filters live in the URL so a view is shareable"
+    }
+  },
+  "kit_base": "shadcn-new-york",
+  "font": {
+    "sans": "\"IBM Plex Sans\", ui-sans-serif, system-ui, \"Segoe UI\", sans-serif",
+    "mono": "\"IBM Plex Mono\", ui-monospace, Menlo, monospace"
+  },
+  "color": {
+    "light": {
+      "bg": "#f8fafc",
+      "surface": "#ffffff",
+      "surface-2": "#f1f5f9",
+      "border": "#e2e8f0",
+      "border-strong": "#8391a7",
+      "text": "#0f172a",
+      "text-muted": "#526077",
+      "primary": "#1d4ed8",
+      "primary-hover": "#1e40af",
+      "primary-fg": "#ffffff",
+      "success": "#15803d",
+      "warning": "#a16207",
+      "danger": "#b91c1c",
+      "danger-fg": "#ffffff",
+      "info": "#0369a1",
+      "focus": "#2563eb"
+    },
+    "dark": {
+      "bg": "#0b1220",
+      "surface": "#111a2e",
+      "surface-2": "#1a2540",
+      "border": "#1e2a44",
+      "border-strong": "#64748b",
+      "text": "#e2e8f0",
+      "text-muted": "#94a3b8",
+      "primary": "#60a5fa",
+      "primary-hover": "#93c5fd",
+      "primary-fg": "#0b1220",
+      "success": "#4ade80",
+      "warning": "#fbbf24",
+      "danger": "#f87171",
+      "danger-fg": "#1f0707",
+      "info": "#38bdf8",
+      "focus": "#93c5fd"
+    }
+  },
+  "type": {
+    "body": "sm",
+    "scale": {
+      "xs": [
+        11,
+        1.45,
+        "column headers, badges"
+      ],
+      "sm": [
+        13,
+        1.45,
+        "body, table cells, inputs"
+      ],
+      "md": [
+        14,
+        1.45,
+        "emphasised body, card titles"
+      ],
+      "lg": [
+        16,
+        1.35,
+        "section headings (h3)"
+      ],
+      "xl": [
+        18,
+        1.3,
+        "panel headings (h2)"
+      ],
+      "2xl": [
+        22,
+        1.25,
+        "page title (h1)"
+      ],
+      "3xl": [
+        28,
+        1.2,
+        "KPI numbers"
+      ]
+    },
+    "weight": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700
+    },
+    "ratio": 1.2,
+    "roles": {
+      "display": {
+        "size": 30,
+        "line": 1.1,
+        "weight": 700,
+        "tracking": -0.02
+      },
+      "h1": {
+        "size": 24,
+        "line": 1.2,
+        "weight": 600,
+        "tracking": -0.015
+      },
+      "h2": {
+        "size": 20,
+        "line": 1.25,
+        "weight": 600,
+        "tracking": -0.01
+      },
+      "h3": {
+        "size": 16,
+        "line": 1.35,
+        "weight": 600,
+        "tracking": 0
+      },
+      "body": {
+        "size": 13,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0
+      },
+      "small": {
+        "size": 11,
+        "line": 1.45,
+        "weight": 400,
+        "tracking": 0.005
+      },
+      "mono": {
+        "size": 12,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "font": "mono"
+      },
+      "tabular": {
+        "size": 13,
+        "line": 1.5,
+        "weight": 400,
+        "tracking": 0,
+        "numeric": "tabular-nums"
+      }
+    }
+  },
+  "space": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    48
+  ],
+  "radius": {
+    "none": 0,
+    "sm": 2,
+    "md": 4,
+    "lg": 6,
+    "xl": 8,
+    "full": 9999
+  },
+  "elevation": {
+    "light": {
+      "0": "none",
+      "1": "0 1px 1px rgb(15 23 42 / 0.06)",
+      "2": "0 2px 8px rgb(15 23 42 / 0.10)",
+      "3": "0 8px 24px rgb(15 23 42 / 0.14)"
+    },
+    "dark": {
+      "0": "none",
+      "1": "0 1px 1px rgb(0 0 0 / 0.5)",
+      "2": "0 2px 8px rgb(0 0 0 / 0.55)",
+      "3": "0 8px 24px rgb(0 0 0 / 0.6)"
+    }
+  },
+  "motion": {
+    "fast": "80ms",
+    "base": "140ms",
+    "slow": "220ms",
+    "easing": "cubic-bezier(0.2, 0, 0, 1)"
+  },
+  "breakpoints": {
+    "sm": 360,
+    "md": 768,
+    "lg": 1024,
+    "xl": 1280,
+    "2xl": 1536
+  },
+  "control": {
+    "height-sm": 28,
+    "height-md": 32,
+    "height-lg": 36,
+    "row-height": 32,
+    "target-min": 24,
+    "sidebar-width": 220,
+    "content-max": 1600
+  },
+  "neutral": {
+    "50": "#f8fafc",
+    "100": "#f1f5f9",
+    "200": "#e2e8f0",
+    "300": "#cbd5e1",
+    "400": "#94a3b8",
+    "500": "#64748b",
+    "600": "#475569",
+    "700": "#334155",
+    "800": "#1e293b",
+    "900": "#0f172a",
+    "950": "#020617"
+  },
+  "dataviz": {
+    "light": [
+      "#2a78d6",
+      "#eb6834",
+      "#1baf7a",
+      "#eda100",
+      "#e87ba4",
+      "#008300",
+      "#6250d6",
+      "#e34948"
+    ],
+    "dark": [
+      "#3987e5",
+      "#d95926",
+      "#199e70",
+      "#c98500",
+      "#d55181",
+      "#008300",
+      "#9085e9",
+      "#e66767"
+    ]
+  },
+  "icon": {
+    "set": "lucide",
+    "stroke": 1.75,
+    "sizes": {
+      "sm": 14,
+      "md": 16,
+      "lg": 18
+    }
+  },
+  "density_modes": {
+    "compact": {
+      "row-height": 32,
+      "control-height": 32,
+      "cell-pad-x": 12,
+      "cell-pad-y": 6
+    },
+    "comfortable": {
+      "row-height": 40,
+      "control-height": 36,
+      "cell-pad-x": 16,
+      "cell-pad-y": 10
+    }
+  },
+  "extra_roles": {
+    "tint-success": {
+      "light": "#e3f0e8",
+      "dark": "#1b3d3d",
+      "use": "success badge, notice and row fill"
+    },
+    "tint-warning": {
+      "light": "#f4ece1",
+      "dark": "#3b382c",
+      "use": "warning badge, notice and row fill"
+    },
+    "tint-danger": {
+      "light": "#f7e4e4",
+      "dark": "#3b2a3a",
+      "use": "danger badge, notice and row fill"
+    },
+    "tint-info": {
+      "light": "#e1edf4",
+      "dark": "#183752",
+      "use": "info badge, notice and row fill"
+    }
+  },
+  "extra_contrast_pairs": [
+    {
+      "fg": "text",
+      "bg": "tint-success",
+      "kind": "text"
+    },
+    {
+      "fg": "success",
+      "bg": "tint-success",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-warning",
+      "kind": "text"
+    },
+    {
+      "fg": "warning",
+      "bg": "tint-warning",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-danger",
+      "kind": "text"
+    },
+    {
+      "fg": "danger",
+      "bg": "tint-danger",
+      "kind": "non-text"
+    },
+    {
+      "fg": "text",
+      "bg": "tint-info",
+      "kind": "text"
+    },
+    {
+      "fg": "info",
+      "bg": "tint-info",
+      "kind": "non-text"
+    }
+  ],
+  "scrim": {
+    "light": "rgba(9, 9, 11, 0.45)",
+    "dark": "rgba(0, 0, 0, 0.6)"
+  }
+}

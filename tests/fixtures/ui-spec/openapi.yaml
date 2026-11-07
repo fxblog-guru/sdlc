@@ -1,0 +1,13 @@
+openapi: 3.1.0
+info: { title: demo, version: 1.0.0 }
+paths:
+  /releases:
+    get:
+      operationId: listReleases
+    post:
+      operationId: createRelease
+  /releases/{id}:
+    get:
+      operationId: getRelease
+    delete:
+      operationId: deleteRelease

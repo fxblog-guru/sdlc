@@ -1,0 +1,28 @@
+# Generated evidence and derived files (DEV-CONTRACTS §8, §18.5). Each is rebuilt by a script, and
+# a gate log records the hash of anything it relied on, so the hash survives the file.
+
+# The derived index — rebuilt by the SessionStart and Stop hooks and by CI (§8).
+/state.json
+/DASHBOARD.md
+
+# ui-snap screenshots and compare pages — rebuilt by ui-snap.mjs.
+/implementation/*/ui-snap/
+/verification/*/runs/*/ui-snap/
+/verification/**/*.png
+/verification/**/*.html
+
+# Compressed raw logs; verify.md names where the run kept them.
+*.gz
+
+# The bundle's own run log (scripts/lib/runlog.mjs) and activity events (lib/activity.mjs).
+/logs/
+
+# Re-review briefs and reaffirm diffs — rebuilt by reaffirm-check.mjs.
+/reviews/*/.reaffirm-*
+/reviews/*/.brief-*
+
+# Id claims made by run-id.mjs --next-cr/--next-dec; each lapses after two hours.
+/.claims/
+
+# Raw scanner output — security-scan.mjs folds it into security/findings.md, which is committed.
+/security/runs/

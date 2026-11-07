@@ -1,0 +1,20 @@
+# Prometheus alerting rules, one per SLO-NNN (DEV-CONTRACTS §13.5, §18.3). Written at G6 by
+# dev-designing-observability, built and reviewed at G7, proved at G11. The `slo` label is how
+# lint-dev E091 finds each SLO's alert; `runbook_url` names ops/runbooks/<alert>.md.
+groups:
+  - name: service-slo
+    rules:
+      # Multi-window burn rate (Google SRE workbook, "Alerting on SLOs"): page when 2% of a 30-day
+      # budget burns in one hour, confirmed over five minutes.
+      - alert: ServiceErrorBudgetBurn
+        expr: |
+          (sum(rate(http_requests_total{service="app",code=~"5.."}[1h])) / sum(rate(http_requests_total{service="app"}[1h]))) > (14.4 * 0.001)
+          and
+          (sum(rate(http_requests_total{service="app",code=~"5.."}[5m])) / sum(rate(http_requests_total{service="app"}[5m]))) > (14.4 * 0.001)
+        for: 2m
+        labels:
+          severity: page
+          slo: SLO-001
+        annotations:
+          summary: Error budget of SLO-001 burning at more than 14.4x
+          runbook_url: ops/runbooks/ServiceErrorBudgetBurn.md

@@ -1,0 +1,8 @@
+[
+  { "key": "DATABASE_URL", "environment_scope": "staging", "protected": false, "masked": true },
+  { "key": "DATABASE_URL", "environment_scope": "production", "protected": true, "masked": true },
+  { "key": "PUBLIC_HOST", "environment_scope": "*", "protected": false, "masked": false },
+  { "key": "TOTP_KEY", "environment_scope": "staging", "protected": false, "masked": true },
+  { "key": "TOTP_KEY", "environment_scope": "production", "protected": false, "masked": true },
+  { "key": "RELEASE_TAG", "environment_scope": "*", "protected": false, "masked": false }
+]

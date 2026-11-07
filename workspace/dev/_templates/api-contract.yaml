@@ -1,0 +1,464 @@
+# Template — OpenAPI 3.1 contract skeleton (G4)
+#
+# authored_by: dev-designing-api
+# reviewed_by: dev-reviewing-api
+#
+# The contract is the authority: implementation follows it, and a change needed during
+# implementation goes back through /sdlc-api rather than being edited inline. That rule is what
+# keeps the client teams, the QA bundle, and the mocks all describing the same system.
+#
+# Every rule of DEV-CONTRACTS §13.1, §13.7 and §13.12 is already applied below; replace each
+# <placeholder> and the file passes api-contract-check.mjs and api-style-check.mjs clean
+# (tests/templates.test.mjs proves it). The rules are in dev-designing-api contract-rules.md.
+# Before you delete a shared component under `components`, check that no operation still uses it.
+#
+#   * every collection is paginated, cursor-first, with a unique tiebreaker in the sort.
+#   * errors are RFC 9457 problem+json, one shape, each status a shared response with an example.
+#   * every operation declares its budget and its behaviour: x-perf, x-traffic, x-timeout-ms,
+#     x-retry, and x-cache on a GET, x-audit and x-max-body-kb on a write (§13.7, §13.12).
+#   * every request body is additionalProperties: false; every property typed and bounded.
+
+openapi: 3.1.0
+info:
+  title: <service name>
+  version: 1.0.0
+  description: |
+    <What this service owns, and what it deliberately does not.>
+
+    ## Retries
+    Retry only what an operation's `x-retry` allows: `safe` as is, `with-key` with the same
+    `Idempotency-Key`, `never` not at all. Back off exponentially with full jitter (base 200 ms,
+    cap 10 s, at most 3 tries) and always honour `Retry-After`.
+  x-enum-policy: extensible            # or closed — clients ignore unknown enum values (§13.1)
+  x-compression: <gzip and br above 1 KB>
+  x-cors: <same origin only | the allowed origins>
+  x-security-headers: <HSTS, nosniff, frame-ancestors none, Referrer-Policy no-referrer>
+  x-traffic-classes:                   # §13.7 — each number from a quality attribute, NFR or DEC
+    read: { rps: <50>, peak_factor: <3>, concurrency: <40>, rate_limit: <300/min per account> }
+    write: { rps: <5>, peak_factor: <4>, concurrency: <10>, rate_limit: <60/min per account> }
+servers:
+  - url: https://<host>/v1
+
+security:
+  - bearerAuth: []
+
+paths:
+  /<resources>:
+    get:
+      operationId: list<Resources>
+      summary: <A page of resources, newest first.>
+      x-requirements: [<REQ-NNN>]
+      x-traffic: read
+      x-perf: { p95_ms: <300>, max_queries: <2>, max_payload_kb: <64> }
+      x-timeout-ms: <1000>
+      x-retry: safe
+      x-cache: private:0
+      x-query: { shape: <keyset on (created_at desc, id desc) over resource>, indexes: [<resource>_created_at_id_idx] }
+      description: |
+        Default order `-created_at`, tiebreaker `id`. Filters: `<field>` (equals). An empty page is
+        200 with `data: []`; a cursor past the end is an empty page; an invalid cursor is 400.
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/Cursor'
+        - name: sort
+          in: query
+          description: Whitelisted fields only; always resolved with a unique tiebreaker.
+          schema: { type: string, enum: [created_at, -created_at], default: -created_at }
+      responses:
+        '200':
+          description: A page of resources.
+          headers:
+            Cache-Control: { $ref: '#/components/headers/CacheControl' }
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [data, page]
+                properties:
+                  data:
+                    type: array
+                    maxItems: 100
+                    items: { $ref: '#/components/schemas/Resource' }
+                  page: { $ref: '#/components/schemas/PageInfo' }
+              example:
+                data:
+                  - { id: res_1, name: <Example>, created_at: '2026-01-01T09:00:00Z' }
+                page: { limit: 20, has_more: false, next_cursor: null }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/Internal' }
+    post:
+      operationId: create<Resource>
+      summary: <Create a resource.>
+      x-requirements: [<REQ-NNN>]
+      x-traffic: write
+      x-perf: { p95_ms: <300>, max_queries: <3>, max_payload_kb: <8> }
+      x-timeout-ms: <1500>
+      x-retry: with-key
+      x-idempotency: required
+      x-concurrency: none:a new record has no prior version
+      x-audit: <true>
+      x-max-body-kb: <16>
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResourceCreate' }
+            example: { name: <Example> }
+      responses:
+        '201':
+          description: Created.
+          headers:
+            Location: { $ref: '#/components/headers/Location' }
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Resource' }
+              example: { id: res_1, name: <Example>, created_at: '2026-01-01T09:00:00Z' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/Internal' }
+
+  /<resources>/{<resource>_id}:
+    parameters:
+      - $ref: '#/components/parameters/ResourceId'
+    get:
+      operationId: get<Resource>
+      summary: <One resource.>
+      x-requirements: [<REQ-NNN>]
+      x-traffic: read
+      x-perf: { p95_ms: <150>, max_queries: <1>, max_payload_kb: <8> }
+      x-timeout-ms: <800>
+      x-retry: safe
+      x-cache: private:0
+      x-query: { shape: <one row by primary key>, indexes: [<resource>_pk] }
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: The resource.
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+            Cache-Control: { $ref: '#/components/headers/CacheControl' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Resource' }
+              example: { id: res_1, name: <Example>, created_at: '2026-01-01T09:00:00Z' }
+        '304': { description: Not modified — the If-None-Match ETag is current. }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/Internal' }
+    patch:
+      operationId: update<Resource>
+      summary: <Change a resource.>
+      description: JSON Merge Patch (RFC 7396) — null clears a member, an absent member is kept. Requires If-Match; a mismatch is 412 and nothing is written.
+      x-requirements: [<REQ-NNN>]
+      x-traffic: write
+      x-perf: { p95_ms: <300>, max_queries: <3>, max_payload_kb: <8> }
+      x-timeout-ms: <1500>
+      x-retry: safe
+      x-idempotency: exempt:a repeat under the same If-Match fails 412
+      x-concurrency: if-match
+      x-audit: <false>
+      x-max-body-kb: <16>
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema: { $ref: '#/components/schemas/ResourceUpdate' }
+            example: { name: <Example> }
+      responses:
+        '200':
+          description: Updated.
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Resource' }
+              example: { id: res_1, name: <Example>, created_at: '2026-01-01T09:00:00Z' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '413': { $ref: '#/components/responses/PayloadTooLarge' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/Internal' }
+
+  /<resources>/{<resource>_id}/<verb>:
+    parameters:
+      - $ref: '#/components/parameters/ResourceId'
+    post:
+      operationId: <verb><Resource>
+      summary: <An action that calls a downstream service.>
+      x-requirements: [<REQ-NNN>]
+      x-traffic: write
+      x-perf: { p95_ms: <900>, max_queries: <2>, max_payload_kb: <4> }
+      x-timeout-ms: <2000>
+      x-retry: with-key
+      x-idempotency: required
+      x-concurrency: if-match
+      x-audit: <true>
+      x-downstream: [<dependency>]
+      parameters:
+        - $ref: '#/components/parameters/RequestId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '200':
+          description: Done.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Resource' }
+              example: { id: res_1, name: <Example>, created_at: '2026-01-01T09:00:00Z' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+        '500': { $ref: '#/components/responses/Internal' }
+        '502': { $ref: '#/components/responses/UpstreamFailed' }
+        '503': { $ref: '#/components/responses/ServiceUnavailable' }
+        '504': { $ref: '#/components/responses/UpstreamTimeout' }
+
+components:
+  parameters:
+    RequestId:
+      name: X-Request-Id
+      in: header
+      description: Echoed on the response and logged; generated when absent. W3C `traceparent` is accepted alongside it.
+      schema: { type: string, maxLength: 128 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      description: Replaying a key within <24 h> returns the original result. The same key with another body is 422; while the first request runs, 409 idempotency-key-in-flight.
+      schema: { type: string, minLength: 1, maxLength: 255 }
+    IfMatch:
+      name: If-Match
+      in: header
+      required: true
+      description: The ETag of the last read. A mismatch is 412 and nothing is written.
+      schema: { type: string, maxLength: 128 }
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      description: The ETag of a cached copy; 304 when it is still current.
+      schema: { type: string, maxLength: 128 }
+    Limit:
+      name: limit
+      in: query
+      description: Page size. Default 20, maximum 100; a larger value is 422.
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Cursor:
+      name: cursor
+      in: query
+      description: Opaque cursor from `page.next_cursor`. Clients must not construct or parse it; an invalid one is 400.
+      schema: { type: string, maxLength: 512 }
+    ResourceId:
+      name: <resource>_id
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/Id' }
+
+  headers:
+    ETag: { description: The representation's version., schema: { type: string, maxLength: 128 } }
+    Location: { description: The created resource., schema: { type: string, maxLength: 2048 } }
+    CacheControl: { description: Per the operation's x-cache., schema: { type: string, maxLength: 128 } }
+    RetryAfter: { description: Seconds to wait before retrying., schema: { type: integer, minimum: 0, maximum: 86400 } }
+    RateLimitLimit: { schema: { type: integer, minimum: 0, maximum: 1000000 } }
+    RateLimitRemaining: { schema: { type: integer, minimum: 0, maximum: 1000000 } }
+    RateLimitReset: { schema: { type: integer, minimum: 0, maximum: 86400 } }
+    Deprecation: { description: 'RFC 9745 — set on every response of a deprecated operation, e.g. @1767225600.', schema: { type: string, maxLength: 64 } }
+    Sunset: { description: 'RFC 8594 — the HTTP date after which the operation is gone.', schema: { type: string, maxLength: 64 } }
+
+  responses:
+    BadRequest:
+      description: The request is malformed, or its cursor is invalid.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/malformed-request, title: Malformed request, status: 400, trace_id: 4bf92f3577b34da6 }
+    Unauthenticated:
+      description: No valid credentials.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/unauthenticated, title: Not signed in, status: 401, trace_id: 4bf92f3577b34da6 }
+    Forbidden:
+      description: Authenticated, and not allowed.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/<resource>-forbidden, title: Not allowed, status: 403, trace_id: 4bf92f3577b34da6 }
+    NotFound:
+      description: Does not exist, or the caller may not see it.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/<resource>-not-found, title: <Resource> not found, status: 404, trace_id: 4bf92f3577b34da6 }
+    Conflict:
+      description: The same Idempotency-Key is still being processed.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/idempotency-key-in-flight, title: Request still running, status: 409, trace_id: 4bf92f3577b34da6 }
+    PreconditionFailed:
+      description: The If-Match ETag is stale.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/precondition-failed, title: Precondition failed, status: 412, trace_id: 4bf92f3577b34da6 }
+    PayloadTooLarge:
+      description: The body is over the operation's x-max-body-kb.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/payload-too-large, title: Request too large, status: 413, trace_id: 4bf92f3577b34da6 }
+    Unprocessable:
+      description: One or more fields break a rule.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/validation, title: Validation failed, status: 422, trace_id: 4bf92f3577b34da6, errors: [{ field: name, code: too_long, limit: 100 }] }
+    TooManyRequests:
+      description: Over the traffic class's rate limit.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+        RateLimit-Limit: { $ref: '#/components/headers/RateLimitLimit' }
+        RateLimit-Remaining: { $ref: '#/components/headers/RateLimitRemaining' }
+        RateLimit-Reset: { $ref: '#/components/headers/RateLimitReset' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/rate-limited, title: Too many requests, status: 429, trace_id: 4bf92f3577b34da6 }
+    Internal:
+      description: A server fault; never a stack trace.
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/internal, title: Internal error, status: 500, trace_id: 4bf92f3577b34da6 }
+    UpstreamFailed:
+      description: A dependency answered with an error.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/upstream-failed, title: A service we depend on failed, status: 502, trace_id: 4bf92f3577b34da6 }
+    ServiceUnavailable:
+      description: A dependency is down, or this service is shedding load.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/service-unavailable, title: Service unavailable, status: 503, trace_id: 4bf92f3577b34da6 }
+    UpstreamTimeout:
+      description: A dependency did not answer within its timeout.
+      headers:
+        Retry-After: { $ref: '#/components/headers/RetryAfter' }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+          example: { type: /problems/upstream-timeout, title: A service we depend on timed out, status: 504, trace_id: 4bf92f3577b34da6 }
+
+  schemas:
+    Id:
+      type: string
+      minLength: 1
+      maxLength: 64
+      description: Opaque identifier; clients must not parse it.
+    PageInfo:
+      type: object
+      additionalProperties: false
+      required: [limit, has_more, next_cursor]
+      properties:
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        has_more: { type: boolean }
+        next_cursor: { type: [string, 'null'], maxLength: 512, description: Null when has_more is false. }
+        total:
+          type: [integer, 'null']
+          minimum: 0
+          maximum: 1000000000
+          description: Present only when `include=total` was requested.
+    ProblemType:
+      type: string
+      description: Exactly the types of api/<slug>/problems.yaml (problems-check.mjs E101).
+      enum:
+        - /problems/malformed-request
+        - /problems/unauthenticated
+        - /problems/<resource>-forbidden
+        - /problems/<resource>-not-found
+        - /problems/idempotency-key-in-flight
+        - /problems/precondition-failed
+        - /problems/payload-too-large
+        - /problems/validation
+        - /problems/rate-limited
+        - /problems/internal
+        - /problems/upstream-failed
+        - /problems/service-unavailable
+        - /problems/upstream-timeout
+    Problem:
+      description: RFC 9457 problem details — the one error shape for this whole service.
+      type: object
+      additionalProperties: false
+      required: [type, title, status]
+      properties:
+        type: { $ref: '#/components/schemas/ProblemType' }
+        title: { type: string, maxLength: 200 }
+        status: { type: integer, minimum: 400, maximum: 599 }
+        detail: { type: string, maxLength: 2000 }
+        instance: { type: string, maxLength: 2048 }
+        trace_id: { type: string, maxLength: 64 }
+        errors:
+          type: array
+          maxItems: 100
+          items: { $ref: '#/components/schemas/FieldError' }
+    FieldError:
+      type: object
+      additionalProperties: false
+      required: [field, code]
+      properties:
+        field: { type: string, maxLength: 200 }
+        code: { type: string, enum: [required, too_long, too_short, invalid_format, out_of_range] }
+        limit: { type: [integer, 'null'], minimum: 0, maximum: 1000000000 }
+    Resource:
+      type: object
+      additionalProperties: false
+      required: [id, name, created_at]
+      properties:
+        id: { allOf: [{ $ref: '#/components/schemas/Id' }], readOnly: true }
+        name: { type: string, minLength: 1, maxLength: <100> }
+        created_at: { type: string, format: date-time, readOnly: true, description: ISO-8601 UTC, ending in Z. }
+    ResourceCreate:
+      type: object
+      additionalProperties: false
+      required: [name]
+      properties:
+        name: { type: string, minLength: 1, maxLength: <100> }
+    ResourceUpdate:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        name: { type: string, minLength: 1, maxLength: <100> }
+
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }

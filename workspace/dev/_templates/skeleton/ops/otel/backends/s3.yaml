@@ -1,0 +1,28 @@
+# ops/otel/backends/s3.yaml — logs and traces archived to S3 as OTLP JSON, partitioned by hour:
+# the cheap long-term copy, read back with Athena or loaded into any backend later. Combine it
+# with a live backend; on its own nobody is paged.
+#
+#   OBS_S3_BUCKET   the bucket; retention is the bucket's lifecycle rule, not this file
+#   OBS_S3_REGION   e.g. ap-southeast-1
+#   Credentials     the workload's IAM role (IRSA, instance profile); never a key in the env file
+
+exporters:
+  awss3:
+    s3uploader:
+      region: ${env:OBS_S3_REGION}
+      s3_bucket: ${env:OBS_S3_BUCKET}
+      s3_prefix: ${env:APP_ENV:-local}
+      s3_partition_format: "year=%Y/month=%m/day=%d/hour=%H"
+      compression: gzip
+    marshaler: otlp_json
+
+service:
+  pipelines:
+    logs/s3:
+      receivers: [filelog]
+      processors: [memory_limiter, resource, batch]
+      exporters: [awss3]
+    traces/s3:
+      receivers: [otlp]
+      processors: [memory_limiter, resource, batch]
+      exporters: [awss3]
